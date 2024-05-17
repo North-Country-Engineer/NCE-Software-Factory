@@ -1,0 +1,42 @@
+name: NC ACADEMY DEVSECOPS PIPELINE
+
+on:
+  push:
+    branches:
+      - development
+      - production
+  repository_dispatch:
+    types: [deploy-production]
+
+env:
+  ECR_REPO_NAME: ""
+  TF_ENV: ""
+  TERRAFORM_ROOT: ./ncacademy_website/terraform
+  NODE_VERSION: 18
+  DOCKER_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'development' }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.TF_VAR_AWS_REGION }}
+  TF_VAR_docker_image_tag: ${{ github.sha }}
+
+jobs:
+  promote-to-production:
+    runs-on: ubuntu-latest
+    if: success() && github.ref == 'refs/heads/development'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: 'development'
+          fetch-depth: 0 
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Merge development into production
+        run: |
+          git checkout production
+          git merge development --no-edit
+          git push origin production
