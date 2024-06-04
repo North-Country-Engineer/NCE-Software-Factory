@@ -52,7 +52,7 @@ jobs:
         working-directory: ${{ env.TERRAFORM_ROOT }}
         
       - name: Select Terraform Workspace
-        run: terraform workspace select ${{ github.ref == 'refs/heads/production' && 'production' || 'development' }} # -or-create
+        run: terraform workspace select ${{ github.ref == 'refs/heads/production' && 'production' || 'sandbox' }}  -or-create
         working-directory: ${{ env.TERRAFORM_ROOT }}
       - name: Output terraform variables to file
         id: output
