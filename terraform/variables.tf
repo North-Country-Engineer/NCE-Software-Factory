@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "site_domain" {
     type    = string
 }
-/*
+
 variable "cloudflare_api_token" {
     type    = string
 }
@@ -23,5 +23,3 @@ variable "zone_id" {
 variable "account_id" {
     type    = string
 }
-
-*/
