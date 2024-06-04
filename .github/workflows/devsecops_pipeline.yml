@@ -98,8 +98,11 @@ jobs:
     needs: build
     steps:
       - name: Deploy static files to S3
-        run: |
-          aws s3 sync ./terraform/static_site/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
+        run: aws s3 sync ./terraform/static_site/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
   promote-to-production:
     runs-on: ubuntu-latest
