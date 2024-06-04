@@ -1,9 +1,9 @@
-name: NC ACADEMY DEVSECOPS PIPELINE
+name: UPSTATE TECH DEVSECOPS PIPELINE
 
 on:
   push:
     branches:
-      - development
+      - sandbox
       - production
   repository_dispatch:
     types: [deploy-production]
@@ -11,32 +11,109 @@ on:
 env:
   ECR_REPO_NAME: ""
   TF_ENV: ""
-  TERRAFORM_ROOT: ./ncacademy_website/terraform
+  TERRAFORM_ROOT: "./terraform"
   NODE_VERSION: 18
-  DOCKER_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'development' }}
+  DOCKER_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'sandbox' }}
+  DOMAIN_TLD: ${{ github.ref == 'refs/head/production' && 'com' || 'dev'}}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION: ${{ secrets.TF_VAR_AWS_REGION }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN}}
   TF_VAR_docker_image_tag: ${{ github.sha }}
 
 jobs:
+  build:
+    name: Build Terraform Files
+    #needs: pre-build
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/production' && 'production' || 'sandbox' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.1.8
+          terraform_wrapper: false
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: ${{ env.TERRAFORM_ROOT }}
+        
+      - name: Select Terraform Workspace
+        run: terraform workspace select ${{ github.ref == 'refs/heads/production' && 'production' || 'development' }} # -or-create
+        working-directory: ${{ env.TERRAFORM_ROOT }}
+      - name: Output terraform variables to file
+        id: output
+        working-directory: ${{ env.TERRAFORM_ROOT }}
+        run: |
+          terraform output -json > ../../terraform-outputs.json
+      - name: Set variables from Terraform Outputs
+        run: |
+          outputs=$(cat terraform-outputs.json)
+          - name: Terraform Validate
+          id: validate
+          run: terraform validate
+          working-directory: ${{ env.TERRAFORM_ROOT }}
+      - name: Terraform Plan
+        id: plan
+        working-directory: ${{ env.TERRAFORM_ROOT }}
+        run: |
+          terraform plan -out ./app.out
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_AWS_REGION: ${{ env.TF_VAR_AWS_REGION }}
+          TF_VAR_CLOUDFLARE_API_KEY: ${{ env.TF_VAR_CLOUDFLARE_API_KEY }}
+          TF_VAR_CLOUDFLARE_EMAIL: ${{ env.TF_VAR_CLOUDFLARE_EMAIL }}
+          TF_VAR_SITE_DOMAIN: ${{ env.TF_VAR_SITE_DOMAIN }}
+      - name: Terraform apply
+        id: apply
+        working-directory: ${{ env.TERRAFORM_ROOT }}
+        run: terraform apply -auto-approve ./app.out
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_AWS_REGION: ${{ env.TF_VAR_AWS_REGION }}
+          TF_VAR_CLOUDFLARE_API_KEY: ${{ env.TF_VAR_CLOUDFLARE_API_KEY }}
+          TF_VAR_CLOUDFLARE_EMAIL: ${{ env.TF_VAR_CLOUDFLARE_EMAIL }}
+          TF_VAR_SITE_DOMAIN: ${{ env.TF_VAR_SITE_DOMAIN }}
+    
+  deploy-static-files: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy static files to S3
+        run: |
+          aws s3 sync ./terraform/static_site/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
+
   promote-to-production:
     runs-on: ubuntu-latest
-    if: success() && github.ref == 'refs/heads/development'
+    if: success() && github.ref == 'refs/heads/sandbox'
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: 'development'
+          ref: 'sandbox'
           fetch-depth: 0 
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ env.PERSONAL_ACCESS_TOKEN }}
 
       - name: Configure Git
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-      - name: Merge development into production
+      - name: Merge sandbox into production
         run: |
           git checkout production
-          git merge development --no-edit
+          git merge sandbox --no-edit
           git push origin production

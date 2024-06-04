@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "s3_bucket_name" {
     description = "The name of the S3 bucket for storing artifacts"
-    default     = "nce_pipelines_artifact_store"
+    default     = "sandbox"
 }
 
 variable "ecr_repo_name" {
@@ -131,4 +131,26 @@ variable "network_acl_ingress_to_port" {
 variable "network_acl_name" {
     description = "The name of the network ACL"
     default     = "nce_pipelines_network-acl"
+}
+
+
+// Cloudflare Environment Variable definitions
+variable "site_domain" {
+    type    = string
+}
+
+variable "cloudflare_api_token" {
+    type    = string
+}
+
+variable "cloudflare_email" {
+    type    = string 
+}
+
+variable "zone_id" {
+    type    = string
+}
+
+variable "account_id" {
+    type    = string
 }
