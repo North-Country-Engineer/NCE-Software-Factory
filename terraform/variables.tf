@@ -3,11 +3,11 @@ variable "aws_region" {
     default     = "us-east-1"
 }
 
-/* Cloudflare Environment Variable definitions
+// Cloudflare Environment Variable definitions
 variable "site_domain" {
     type    = string
 }
-
+/*
 variable "cloudflare_api_token" {
     type    = string
 }
