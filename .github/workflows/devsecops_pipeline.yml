@@ -52,7 +52,7 @@ jobs:
         working-directory: ${{ env.TERRAFORM_ROOT }}
         
       - name: Select Terraform Workspace
-        run: terraform workspace select ${{ github.ref == 'refs/heads/production' && 'production' || 'sandbox' }}  -or-create ${{ github.ref == 'refs/heads/production' && 'production' || 'sandbox' }}
+        run: terraform workspace select ${{ env.DOCKER_ENV }}  -or-create ${{ env.DOCKER_ENV }}
         working-directory: ${{ env.TERRAFORM_ROOT }}
       - name: Output terraform variables to file
         id: output
@@ -92,6 +92,7 @@ jobs:
     
   deploy-static-files: 
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Deploy static files to S3
         run: |
@@ -99,6 +100,7 @@ jobs:
 
   promote-to-production:
     runs-on: ubuntu-latest
+    needs: deploy-static-files
     if: success() && github.ref == 'refs/heads/sandbox'
     steps:
       - uses: actions/checkout@v2
