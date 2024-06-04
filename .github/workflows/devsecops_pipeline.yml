@@ -21,10 +21,10 @@ env:
   PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN}}
   TF_VAR_docker_image_tag: ${{ github.sha }}
   TF_VAR_site_domain: ${{ secrets.SITE_DOMAIN }}
-  TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  TF_VAR_cloudflare_email: ${{ secrets.CLOUDFLARE_EMAIL }}
-  TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-  TF_VAR_account_id: ${{ secrets.ACCOUNT_ID }}
+  TF_VAR_cloudflare_api_token: ${{ secrets.TF_VAR_CLOUDFLARE_API_TOKEN }}
+  TF_VAR_cloudflare_email: ${{ secrets.TF_VAR_CLOUDFLARE_EMAIL }}
+  TF_VAR_zone_id: ${{ secrets.TF_VAR_ZONE_ID }}
+  TF_VAR_account_id: ${{ secrets.TF_VAR_ACCOUNT_ID }}
 
 jobs:
   build:
