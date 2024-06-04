@@ -16,11 +16,20 @@ provider "aws" {
     region  = var.aws_region
 }
 
-/*CLOUDFLARE
+//CLOUDFLARE
 provider "cloudflare" {
     api_token = var.cloudflare_api_token
 }
 
+resource "cloudflare_record" "website" {
+  zone_id = "your_cloudflare_zone_id"
+  name    = "your_domain.com"
+  type    = "CNAME"
+  value   = "http://upstate-tech.dev.s3-website-us-east-1.amazonaws.com/"
+  ttl     = 3600
+}
+
+/* Commented out as it throws an error if the record already exists
 resource "cloudflare_record" "www" {
     zone_id = var.zone_id
     name    = "www"
