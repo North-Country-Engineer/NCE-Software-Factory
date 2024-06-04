@@ -21,10 +21,10 @@ env:
   PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN}}
   TF_VAR_docker_image_tag: ${{ github.sha }}
   TF_VAR_site_domain: ${{ secrets.SITE_DOMAIN }}
-  TF_VAR_cloudflare_api_token: ${{ secrets.TF_VAR_CLOUDFLARE_API_TOKEN }}
-  TF_VAR_cloudflare_email: ${{ secrets.TF_VAR_CLOUDFLARE_EMAIL }}
-  TF_VAR_zone_id: ${{ secrets.TF_VAR_ZONE_ID }}
-  TF_VAR_account_id: ${{ secrets.TF_VAR_ACCOUNT_ID }}
+  # TF_VAR_cloudflare_api_token: ${{ secrets.TF_VAR_CLOUDFLARE_API_TOKEN }}
+  # TF_VAR_cloudflare_email: ${{ secrets.TF_VAR_CLOUDFLARE_EMAIL }}
+  # TF_VAR_zone_id: ${{ secrets.TF_VAR_ZONE_ID }}
+  # TF_VAR_account_id: ${{ secrets.TF_VAR_ACCOUNT_ID }}
 
 jobs:
   build:
@@ -74,10 +74,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_aws_region: ${{ env.AWS_REGION }}
           TF_VAR_site_domain: ${{ env.TF_VAR_site_domain }}
-          TF_VAR_cloudflare_api_token: ${{ env.TF_VAR_cloudflare_api_token}}
-          TF_VAR_cloudflare_email: ${{ env.TF_VAR_cloudflare_email }}
-          TF_VAR_zone_id: ${{ env.TF_VAR_zone_id }}
-          TF_VAR_account_id: ${{ env.TF_VAR_account_id }}
+          # TF_VAR_cloudflare_api_token: ${{ env.TF_VAR_cloudflare_api_token}}
+          # TF_VAR_cloudflare_email: ${{ env.TF_VAR_cloudflare_email }}
+          # TF_VAR_zone_id: ${{ env.TF_VAR_zone_id }}
+          # TF_VAR_account_id: ${{ env.TF_VAR_account_id }}
 
       - name: Terraform apply
         id: apply
@@ -88,10 +88,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_aws_region: ${{ env.AWS_REGION }}
           TF_VAR_site_domain: ${{ env.TF_VAR_site_domain }}
-          TF_VAR_cloudflare_api_token: ${{ env.TF_VAR_cloudflare_api_token}}
-          TF_VAR_cloudflare_email: ${{ env.TF_VAR_cloudflare_email }}
-          TF_VAR_zone_id: ${{ env.TF_VAR_zone_id }}
-          TF_VAR_account_id: ${{ env.TF_VAR_account_id }}
+          # TF_VAR_cloudflare_api_token: ${{ env.TF_VAR_cloudflare_api_token}}
+          # TF_VAR_cloudflare_email: ${{ env.TF_VAR_cloudflare_email }}
+          # TF_VAR_zone_id: ${{ env.TF_VAR_zone_id }}
+          # TF_VAR_account_id: ${{ env.TF_VAR_account_id }}
     
   deploy-static-files: 
     runs-on: ubuntu-latest

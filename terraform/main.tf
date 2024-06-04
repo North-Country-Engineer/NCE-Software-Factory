@@ -16,7 +16,7 @@ provider "aws" {
     region  = var.aws_region
 }
 
-//CLOUDFLARE
+/*CLOUDFLARE
 provider "cloudflare" {
     api_token = var.cloudflare_api_token
 }
@@ -28,6 +28,7 @@ resource "cloudflare_record" "www" {
     type    = "A"
     proxied = true
 }
+*/
 
 //AWS S3
 resource "aws_s3_bucket" "site" {
