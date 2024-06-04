@@ -135,7 +135,15 @@ jobs:
           git config user.email "actions@github.com"
 
       - name: Merge sandbox into production
-        run: |
-          git checkout production
-          git merge sandbox --no-edit
-          git push origin production
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Merge sandbox into production',
+              head: 'sandbox',
+              base: 'production',
+              body: 'This pull request merges the changes from the sandbox branch into the production branch.'
+            })
