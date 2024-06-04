@@ -109,14 +109,14 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.TF_VAR_AWS_REGION }}
+          aws-region: "us-east-1"
 
       - name: Deploy static files to S3
         run: aws s3 sync ./terraform/static_site/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ env.AWS_DEFAULT_REGION }}
+          AWS_REGION: "us-east-1"
 
   promote-to-production:
     runs-on: ubuntu-latest
