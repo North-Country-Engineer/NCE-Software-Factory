@@ -51,7 +51,7 @@ jobs:
         run: terraform init
         working-directory: ${{ env.TERRAFORM_ROOT }}
       - name: Select Terraform Workspace
-        run: terraform workspace select ${{ env.DOCKER_ENV }} || terraform workspace new ${{env.TERRAFORM_ROOT}}
+        run: terraform workspace select ${{ env.DOCKER_ENV }} || terraform workspace new ${{env.DOCKER_ENV}}
         working-directory: ${{ env.TERRAFORM_ROOT }} 
       - name: Output terraform variables to file
         id: output
