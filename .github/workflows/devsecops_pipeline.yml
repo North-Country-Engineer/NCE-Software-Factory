@@ -94,16 +94,17 @@ jobs:
           # TF_VAR_zone_id: ${{ env.TF_VAR_zone_id }}
           # TF_VAR_account_id: ${{ env.TF_VAR_account_id }}
     
-  deploy-static-files: 
+  deploy-static-site: 
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
         with:
           ref: ${{env.DOCKER_ENV}}
           fetch-depth: 0 
           token: ${{ env.PERSONAL_ACCESS_TOKEN }}
-      
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -111,8 +112,21 @@ jobs:
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-east-1"
 
-      - name: Deploy static files to S3
-        run: aws s3 sync ./terraform/static_site/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./terraform/static_site
+
+      - name: Build Next.js Site
+        run: npm run build && npm run export
+        working-directory: ./terraform/static_site
+
+      - name: Deploy Static Files to S3
+        run: aws s3 sync ./terraform/static_site/out/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
@@ -120,7 +134,7 @@ jobs:
 
   promote-to-production:
     runs-on: ubuntu-latest
-    needs: deploy-static-files
+    needs: deploy-static-site
     if: success() && github.ref == 'refs/heads/sandbox'
     steps:
       - uses: actions/checkout@v4
