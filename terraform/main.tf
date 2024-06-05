@@ -95,9 +95,9 @@ resource "aws_s3_bucket_policy" "site" {
             Principal = "*"
             Action    = "s3:GetObject"
             Resource = [
-            aws_s3_bucket.site.arn,
-            "${aws_s3_bucket.site.arn}/*",
-            ]
+                aws_s3_bucket.site.arn,
+                "${aws_s3_bucket.site.arn}/*",
+                ]
         },
         ]
     })
