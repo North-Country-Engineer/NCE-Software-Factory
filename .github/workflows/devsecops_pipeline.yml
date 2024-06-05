@@ -152,12 +152,17 @@ jobs:
         run: |
           git checkout production || git checkout -b production
           git push origin production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
       - name: Merge sandbox into production
         run: |
           git checkout production
           git merge sandbox --no-edit
           git push origin production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
 
       # - name: Merge sandbox into production
       #   uses: actions/github-script@v6
