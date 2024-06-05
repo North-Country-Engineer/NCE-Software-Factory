@@ -6,7 +6,7 @@ variable "aws_region" {
 // Cloudflare Environment Variable definitions
 variable "site_domain" {
     type    = string
-    default = "www.upstate-tech.dev"
+    default = "upstate-tech.dev"
 }
 /*
 variable "cloudflare_api_token" {
