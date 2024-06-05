@@ -154,6 +154,13 @@ jobs:
           git push origin production
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Pull Latest Changes from Production
+        run: |
+          git checkout production
+          git pull origin production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
       - name: Merge sandbox into production
         run: |
