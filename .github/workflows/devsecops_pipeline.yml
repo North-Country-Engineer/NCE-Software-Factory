@@ -148,16 +148,8 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-      - name: Create Production Branch if it doesn't exist
+      - name: Create or pull production
         run: |
-          git checkout production || git checkout -b production
-          git push origin production
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Pull Latest Changes from Production
-        run: |
-          git checkout production
           git pull origin production
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
