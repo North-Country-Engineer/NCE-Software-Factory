@@ -122,7 +122,7 @@ jobs:
         working-directory: ./terraform/static_site
 
       - name: Build Next.js Site
-        run: npm run build && npm run export
+        run: npm run build
         working-directory: ./terraform/static_site
 
       - name: Deploy Static Files to S3
