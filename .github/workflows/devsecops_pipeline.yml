@@ -148,10 +148,15 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-      - name: Merge development into production
+      - name: Create Production Branch if it doesn't exist
+        run: |
+          git checkout production || git checkout -b production
+          git push origin production
+  
+      - name: Merge sandbox into production
         run: |
           git checkout production
-          git merge development --no-edit
+          git merge sandbox --no-edit
           git push origin production
 
       # - name: Merge sandbox into production
