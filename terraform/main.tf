@@ -19,21 +19,11 @@ provider "aws" {
 # Check for existing IAM Role
 data "aws_iam_role" "existing_github_actions_role" {
     name = "github-actions-role"
-
-    # If the role does not exist, suppress errors
-    lifecycle {
-        ignore_errors = true
-    }
 }
 
 # Check for existing IAM Policy
 data "aws_iam_policy" "existing_github_actions_policy" {
-    arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/github-actions-policy"
-
-    # If the policy does not exist, suppress errors
-    lifecycle {
-        ignore_errors = true
-    }
+    arn = var.actions_role_arn
 }
 
 # IAM Role - Create only if the role does not already exist

@@ -14,20 +14,6 @@ variable "site_domain" {
     description = "Target site domain; will be S3 bucket name as well as target domain"
 }
 
-/*
-variable "cloudflare_api_token" {
-    type    = string
+variable "actions_role_arn" {
+    description = "ARN of the role to use for actions"
 }
-
-variable "cloudflare_email" {
-    type    = string 
-}
-
-variable "zone_id" {
-    type    = string
-}
-
-variable "account_id" {
-    type    = string
-}
-*/
