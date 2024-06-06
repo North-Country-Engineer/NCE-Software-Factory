@@ -9,10 +9,8 @@ on:
     types: [deploy-production]
 
 env:
-  ECR_REPO_NAME: ""
-  TF_ENV: ""
   TERRAFORM_ROOT: "./terraform"
-  NODE_VERSION: 18
+  NODE_VERSION: 18.x
   DOCKER_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'sandbox' }}
   DOMAIN_TLD: ${{ github.ref == 'refs/head/production' && 'com' || 'dev'}}
   AWS_ACCESS_KEY_ID: ${{ secrets.TF_VAR_aws_access_key }}
@@ -21,12 +19,7 @@ env:
   AWS_DEFAULT_REGION: "us-east-1"
   PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN}}
   TF_VAR_docker_image_tag: ${{ github.sha }}
-  TF_VAR_site_domain: ${{ secrets.SITE_DOMAIN }}
   ACTIONS_ROLE_ARN: ${{ secrets.ACTIONS_ROLE_ARN }}
-  # TF_VAR_cloudflare_api_token: ${{ secrets.TF_VAR_CLOUDFLARE_API_TOKEN }}
-  # TF_VAR_cloudflare_email: ${{ secrets.TF_VAR_CLOUDFLARE_EMAIL }}
-  # TF_VAR_zone_id: ${{ secrets.TF_VAR_ZONE_ID }}
-  # TF_VAR_account_id: ${{ secrets.TF_VAR_ACCOUNT_ID }}
 
 jobs:
   build:
@@ -41,7 +34,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: ${{env.NODE_VERSION}}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -75,10 +68,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_aws_region: ${{ env.AWS_REGION }}
           TF_VAR_site_domain: upstate-tech.${{env.DOCKER_ENV}}
-          # TF_VAR_cloudflare_api_token: ${{ env.TF_VAR_cloudflare_api_token}}
-          # TF_VAR_cloudflare_email: ${{ env.TF_VAR_cloudflare_email }}
-          # TF_VAR_zone_id: ${{ env.TF_VAR_zone_id }}
-          # TF_VAR_account_id: ${{ env.TF_VAR_account_id }}
+          TF_VAR_aws_access_key: ${{env.TF_VAR_aws_access_key}}
+          TF_VAR_aws_secret_key: ${{env.TF_VAR_aws_secret_key}}
 
       - name: Terraform apply
         id: apply
@@ -89,10 +80,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_aws_region: ${{ env.AWS_REGION }}
           TF_VAR_site_domain: upstate-tech.${{env.DOCKER_ENV}}
-          # TF_VAR_cloudflare_api_token: ${{ env.TF_VAR_cloudflare_api_token}}
-          # TF_VAR_cloudflare_email: ${{ env.TF_VAR_cloudflare_email }}
-          # TF_VAR_zone_id: ${{ env.TF_VAR_zone_id }}
-          # TF_VAR_account_id: ${{ env.TF_VAR_account_id }}
+          TF_VAR_aws_access_key: ${{env.TF_VAR_aws_access_key}}
+          TF_VAR_aws_secret_key: ${{env.TF_VAR_aws_secret_key}}
     
   deploy-static-site: 
     runs-on: ubuntu-latest
@@ -114,7 +103,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: ${{env.NODE_VERSION}}
       
       - name: Install Dependencies
         run: npm install
