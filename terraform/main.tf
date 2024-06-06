@@ -150,7 +150,7 @@ resource "aws_s3_bucket_policy" "site" {
                 Sid       = "AllowS3ActionsForCI",
                 Effect    = "Allow",
                 Principal = {
-                    AWS: "${aws_iam_role.github_actions_role.arn}"
+                    AWS: "${{var.actions_role_arn}}"
                 },
                 Action    = [
                     "s3:GetObject",
