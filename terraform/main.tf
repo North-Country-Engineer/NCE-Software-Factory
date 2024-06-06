@@ -9,7 +9,62 @@ terraform {
 }
 
 provider "aws" {
-    region  = var.aws_region
+    region = var.aws_region
+    access_key = var.aws_access_key
+    secret_key = var.aws_secret_key
+}
+
+# IAM
+resource "aws_iam_role" "github_actions_role" {
+    name = "github-actions-role"
+
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17",
+        Statement = [
+            {
+                Effect = "Allow",
+                Principal = {
+                    Service = "ec2.amazonaws.com"
+                },
+                Action = "sts:AssumeRole"
+            }
+        ]
+    })
+}
+
+# IAM Policy
+resource "aws_iam_policy" "github_actions_policy" {
+    name        = "github-actions-policy"
+    description = "Policy for GitHub Actions to access S3 bucket"
+    policy      = jsonencode({
+        Version = "2012-10-17",
+        Statement = [
+            {
+                Effect = "Allow",
+                Action = [
+                    "s3:GetObject",
+                    "s3:PutObject",
+                    "s3:DeleteObject",
+                    "s3:ListBucket"
+                ],
+                Resource = [
+                    "arn:aws:s3:::${aws_s3_bucket.site.id}",
+                    "arn:aws:s3:::${aws_s3_bucket.site.id}/*"
+                ]
+            }
+        ]
+    })
+}
+
+# Attach Policy to Role
+resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
+    role       = aws_iam_role.github_actions_role.name
+    policy_arn = aws_iam_policy.github_actions_policy.arn
+}
+
+# Output the Role ARN
+output "github_actions_role_arn" {
+    value = aws_iam_role.github_actions_role.arn
 }
 
 //AWS S3
@@ -59,18 +114,35 @@ resource "aws_s3_bucket_policy" "site" {
     bucket = aws_s3_bucket.site.id
 
     policy = jsonencode({
-        Version = "2012-10-17"
+        Version = "2012-10-17",
         Statement = [
-        {
-            Sid       = "PublicReadGetObject"
-            Effect    = "Allow"
-            Principal = "*"
-            Action    = "s3:GetObject"
-            Resource = [
-                aws_s3_bucket.site.arn,
-                "${aws_s3_bucket.site.arn}/*",
+            {
+                Sid       = "PublicReadGetObject",
+                Effect    = "Allow",
+                Principal = "*",
+                Action    = "s3:GetObject",
+                Resource  = [
+                    aws_s3_bucket.site.arn,
+                    "${aws_s3_bucket.site.arn}/*"
                 ]
-        },
+            },
+            {
+                Sid       = "AllowS3ActionsForCI",
+                Effect    = "Allow",
+                Principal = {
+                    AWS: "${aws_iam_role.github_actions_role.arn}"
+                },
+                Action    = [
+                    "s3:GetObject",
+                    "s3:PutObject",
+                    "s3:DeleteObject",
+                    "s3:ListBucket"
+                ],
+                Resource  = [
+                    aws_s3_bucket.site.arn,
+                    "${aws_s3_bucket.site.arn}/*"
+                ]
+            }
         ]
     })
 

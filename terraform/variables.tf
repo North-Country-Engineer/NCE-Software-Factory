@@ -1,12 +1,17 @@
 variable "aws_region" {
     description = "The AWS region to deploy resources"
-    default     = "us-east-1"
 }
 
-// Cloudflare Environment Variable definitions
+variable "aws_access_key" {
+    description = "The AWS access key to use for deployment"
+}
+
+variable "aws_secret_key" {
+    description = "The AWS secret key to use for deployment"
+}
+
 variable "site_domain" {
-    type    = string
-    default = "upstate-tech.dev"
+    description = "Target site domain; will be S3 bucket name as well as target domain"
 }
 
 /*
