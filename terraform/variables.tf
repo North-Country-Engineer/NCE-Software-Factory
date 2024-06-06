@@ -16,4 +16,5 @@ variable "site_domain" {
 
 variable "actions_role_arn" {
     description = "ARN of the role to use for actions"
+    default     = "arn:aws:iam::654654362378:role/github-actions-role"
 }
