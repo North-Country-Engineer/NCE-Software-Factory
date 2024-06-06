@@ -74,7 +74,7 @@ jobs:
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
           TF_VAR_aws_access_key: ${{env.TF_VAR_aws_access_key}}
           TF_VAR_aws_secret_key: ${{env.TF_VAR_aws_secret_key}}
-          TF_VAR_actions_role_arn: ${{env.ACTIONS_ROLE_ARN}}
+          TF_VAR_actions_role_arn: ${{ secrets.ACTIONS_ROLE_ARN }}
 
       - name: Terraform apply
         id: apply
@@ -87,7 +87,7 @@ jobs:
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
           TF_VAR_aws_access_key: ${{env.TF_VAR_aws_access_key}}
           TF_VAR_aws_secret_key: ${{env.TF_VAR_aws_secret_key}}
-          TF_VAR_actions_role_arn: ${{env.ACTIONS_ROLE_ARN}}
+          TF_VAR_actions_role_arn: ${{ secrets.ACTIONS_ROLE_ARN }}
     
   deploy-static-site: 
     runs-on: ubuntu-latest
