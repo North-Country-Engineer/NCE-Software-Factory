@@ -1,10 +1,6 @@
 
 terraform {
     required_providers {
-        cloudflare = {
-            source = "cloudflare/cloudflare"
-            version = "~> 4"
-        }
         aws = {
             source  = "hashicorp/aws"
             version = "~> 4.0"
@@ -82,22 +78,3 @@ resource "aws_s3_bucket_policy" "site" {
         aws_s3_bucket_public_access_block.site
     ]
 }
-
-//CLOUDFLARE SETUP REQUIRED FOR FIRST DEPLOYMENT TO NEW ENVIRONMENT, COMMENTED
-//DUE TO LIMITATION WITH TERRAFORM AS IT WILL FAIL IF A RECORD ALREADY EXISTS
-
-/* 
-provider "cloudflare" {
-    api_token = var.cloudflare_api_token
-}
-
-resource "cloudflare_record" "website" {
-    zone_id = ${{var.zone_id}}
-    name    = ${{var.site_id}}
-    type    = "CNAME"
-    value   = "http://${{var.site_id}}.s3-website-us-east-1.amazonaws.com/"
-    proxied = true
-    ttl     = 3600
-}
-
-*/

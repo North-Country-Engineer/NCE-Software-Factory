@@ -8,6 +8,7 @@ variable "site_domain" {
     type    = string
     default = "upstate-tech.dev"
 }
+
 /*
 variable "cloudflare_api_token" {
     type    = string
@@ -24,5 +25,4 @@ variable "zone_id" {
 variable "account_id" {
     type    = string
 }
-
 */
