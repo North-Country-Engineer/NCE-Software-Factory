@@ -16,7 +16,6 @@ provider "aws" {
 
 # IAM - Commented out other than for initial stage builds
 
-/*
 # Check for existing IAM Role
 data "aws_iam_role" "existing_github_actions_role" {
     name = "github-actions-role"
@@ -29,10 +28,7 @@ data "aws_iam_policy" "existing_github_actions_policy" {
 
 # IAM Role - Create only if the role does not already exist
 resource "aws_iam_role" "github_actions_role" {
-    count = length(data.aws_iam_role.existing_github_actions_role.name) == 0 ? 1 : 0
-
     name = "github-actions-role"
-
     assume_role_policy = jsonencode({
         Version = "2012-10-17",
         Statement = [
@@ -49,8 +45,6 @@ resource "aws_iam_role" "github_actions_role" {
 
 # IAM Policy - Create only if the policy does not already exist
 resource "aws_iam_policy" "github_actions_policy" {
-    count = length(data.aws_iam_policy.existing_github_actions_policy.arn) == 0 ? 1 : 0
-
     name        = "github-actions-policy"
     description = "Policy for GitHub Actions to access S3 bucket"
     policy      = jsonencode({
@@ -75,17 +69,14 @@ resource "aws_iam_policy" "github_actions_policy" {
 
 # Attach Policy to Role
 resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
-    count = length(data.aws_iam_role.existing_github_actions_role.name) == 0 ? 1 : 0
-
     role       = aws_iam_role.github_actions_role.name
     policy_arn = aws_iam_policy.github_actions_policy.arn
 }
 
 # Output the Role ARN
 output "github_actions_role_arn" {
-    value = coalesce(data.aws_iam_role.existing_github_actions_role.arn, aws_iam_role.github_actions_role.arn)
+    value = aws_iam_role.github_actions_role.arn
 }
-*/
 
 //AWS S3
 resource "aws_s3_bucket" "site" {
@@ -130,43 +121,43 @@ resource "aws_s3_bucket_acl" "site" {
     ]
 }
 
-# resource "aws_s3_bucket_policy" "site" {
-#     bucket = aws_s3_bucket.site.id
+resource "aws_s3_bucket_policy" "site" {
+    bucket = aws_s3_bucket.site.id
 
-#     policy = jsonencode({
-#         Version = "2012-10-17",
-#         Statement = [
-#             {
-#                 Sid       = "PublicReadGetObject",
-#                 Effect    = "Allow",
-#                 Principal = "*",
-#                 Action    = "s3:GetObject",
-#                 Resource  = [
-#                     aws_s3_bucket.site.arn,
-#                     "${aws_s3_bucket.site.arn}/*"
-#                 ]
-#             },
-#             {
-#                 Sid       = "AllowS3ActionsForCI",
-#                 Effect    = "Allow",
-#                 Principal = {
-#                     AWS: "${{var.actions_role_arn}}"
-#                 },
-#                 Action    = [
-#                     "s3:GetObject",
-#                     "s3:PutObject",
-#                     "s3:DeleteObject",
-#                     "s3:ListBucket"
-#                 ],
-#                 Resource  = [
-#                     aws_s3_bucket.site.arn,
-#                     "${aws_s3_bucket.site.arn}/*"
-#                 ]
-#             }
-#         ]
-#     })
+    policy = jsonencode({
+        Version = "2012-10-17",
+        Statement = [
+            {
+                Sid       = "PublicReadGetObject",
+                Effect    = "Allow",
+                Principal = "*",
+                Action    = "s3:GetObject",
+                Resource  = [
+                    aws_s3_bucket.site.arn,
+                    "${aws_s3_bucket.site.arn}/*"
+                ]
+            },
+            {
+                Sid       = "AllowS3ActionsForCI",
+                Effect    = "Allow",
+                Principal = {
+                    AWS: "${aws_iam_role.github_actions_role.arn}"
+                },
+                Action    = [
+                    "s3:GetObject",
+                    "s3:PutObject",
+                    "s3:DeleteObject",
+                    "s3:ListBucket"
+                ],
+                Resource  = [
+                    aws_s3_bucket.site.arn,
+                    "${aws_s3_bucket.site.arn}/*"
+                ]
+            }
+        ]
+    })
 
-#     depends_on = [
-#         aws_s3_bucket_public_access_block.site
-#     ]
-# }
+    depends_on = [
+        aws_s3_bucket_public_access_block.site
+    ]
+}
