@@ -14,8 +14,9 @@ provider "aws" {
     secret_key = var.aws_secret_key
 }
 
-# IAM
+# IAM - Commented out other than for initial stage builds
 
+/*
 # Check for existing IAM Role
 data "aws_iam_role" "existing_github_actions_role" {
     name = "github-actions-role"
@@ -84,6 +85,7 @@ resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
 output "github_actions_role_arn" {
     value = coalesce(data.aws_iam_role.existing_github_actions_role.arn, aws_iam_role.github_actions_role.arn)
 }
+*/
 
 //AWS S3
 resource "aws_s3_bucket" "site" {
