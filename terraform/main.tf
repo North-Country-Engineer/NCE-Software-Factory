@@ -130,43 +130,43 @@ resource "aws_s3_bucket_acl" "site" {
     ]
 }
 
-resource "aws_s3_bucket_policy" "site" {
-    bucket = aws_s3_bucket.site.id
+# resource "aws_s3_bucket_policy" "site" {
+#     bucket = aws_s3_bucket.site.id
 
-    policy = jsonencode({
-        Version = "2012-10-17",
-        Statement = [
-            {
-                Sid       = "PublicReadGetObject",
-                Effect    = "Allow",
-                Principal = "*",
-                Action    = "s3:GetObject",
-                Resource  = [
-                    aws_s3_bucket.site.arn,
-                    "${aws_s3_bucket.site.arn}/*"
-                ]
-            },
-            {
-                Sid       = "AllowS3ActionsForCI",
-                Effect    = "Allow",
-                Principal = {
-                    AWS: "${{var.actions_role_arn}}"
-                },
-                Action    = [
-                    "s3:GetObject",
-                    "s3:PutObject",
-                    "s3:DeleteObject",
-                    "s3:ListBucket"
-                ],
-                Resource  = [
-                    aws_s3_bucket.site.arn,
-                    "${aws_s3_bucket.site.arn}/*"
-                ]
-            }
-        ]
-    })
+#     policy = jsonencode({
+#         Version = "2012-10-17",
+#         Statement = [
+#             {
+#                 Sid       = "PublicReadGetObject",
+#                 Effect    = "Allow",
+#                 Principal = "*",
+#                 Action    = "s3:GetObject",
+#                 Resource  = [
+#                     aws_s3_bucket.site.arn,
+#                     "${aws_s3_bucket.site.arn}/*"
+#                 ]
+#             },
+#             {
+#                 Sid       = "AllowS3ActionsForCI",
+#                 Effect    = "Allow",
+#                 Principal = {
+#                     AWS: "${{var.actions_role_arn}}"
+#                 },
+#                 Action    = [
+#                     "s3:GetObject",
+#                     "s3:PutObject",
+#                     "s3:DeleteObject",
+#                     "s3:ListBucket"
+#                 ],
+#                 Resource  = [
+#                     aws_s3_bucket.site.arn,
+#                     "${aws_s3_bucket.site.arn}/*"
+#                 ]
+#             }
+#         ]
+#     })
 
-    depends_on = [
-        aws_s3_bucket_public_access_block.site
-    ]
-}
+#     depends_on = [
+#         aws_s3_bucket_public_access_block.site
+#     ]
+# }
