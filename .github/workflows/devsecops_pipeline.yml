@@ -38,16 +38,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Print Environment Variables
-        run: |
-          echo "DOCKER_ENV: ${{ env.DOCKER_ENV }}"
-          echo "DOMAIN_TLD: ${{ env.DOMAIN_TLD }}"
-          echo "AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}"
-          echo "AWS_SECRET_ACCESS_KEY: [MASKED]"
-          echo "AWS_REGION: ${{ env.AWS_REGION }}"
-          echo "AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}"
-          echo "TF_VAR_site_domain: upstate-tech.${{env.DOCKER_ENV}}
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
