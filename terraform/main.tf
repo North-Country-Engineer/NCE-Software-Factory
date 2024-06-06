@@ -16,17 +16,7 @@ provider "aws" {
 
 # IAM - Commented out other than for initial stage builds
 
-# Check for existing IAM Role
-data "aws_iam_role" "existing_github_actions_role" {
-    name = "github-actions-role"
-}
-
-# Check for existing IAM Policy
-data "aws_iam_policy" "existing_github_actions_policy" {
-    arn = var.actions_role_arn
-}
-
-# IAM Role - Create only if the role does not already exist
+# IAM Role
 resource "aws_iam_role" "github_actions_role" {
     name = "github-actions-role"
     assume_role_policy = jsonencode({
@@ -43,7 +33,7 @@ resource "aws_iam_role" "github_actions_role" {
     })
 }
 
-# IAM Policy - Create only if the policy does not already exist
+# IAM Policy
 resource "aws_iam_policy" "github_actions_policy" {
     name        = "github-actions-policy"
     description = "Policy for GitHub Actions to access S3 bucket"
