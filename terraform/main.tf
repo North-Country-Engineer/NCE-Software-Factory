@@ -71,6 +71,7 @@ output "github_actions_role_arn" {
 //AWS S3
 resource "aws_s3_bucket" "site" {
     bucket = var.site_domain
+    force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {
@@ -150,4 +151,19 @@ resource "aws_s3_bucket_policy" "site" {
     depends_on = [
         aws_s3_bucket_public_access_block.site
     ]
+}
+
+resource "aws_s3_bucket_versioning" "versioning_example" {
+  bucket = data.aws_s3_bucket.selected-bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+terraform {
+  backend "s3" {
+    bucket  = "ncacademy-global-tf-state"
+    key     = "global_state/terraform.tfstate"
+    region  = "us-east-1"
+  }
 }
