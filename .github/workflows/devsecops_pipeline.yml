@@ -22,25 +22,22 @@ jobs:
     environment: ${{github.ref == 'refs/heads/production' && 'production' || 'sandbox'}}
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{env.NODE_VERSION}}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-access-key-id: ${{secrets.TF_VAR_aws_access_key}}
-          aws-secret-access-key: ${{secrets.TF_VAR_aws_secret_key}}
-          aws-region: ${{env.AWS_REGION}}
+          role-to-assume: <arn:aws:iam::${{secrets.TF_VAR_aws_account_number}}:role/GitHubAction-AssumeRoleWithAction>
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.1.8
           terraform_wrapper: false
 
       - name: Terraform Init
