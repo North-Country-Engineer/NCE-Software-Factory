@@ -11,15 +11,9 @@ on:
 env:
   TERRAFORM_ROOT: "./terraform"
   NODE_VERSION: 18.x
-  DOCKER_ENV: ${{github.ref == 'refs/heads/production' && 'production' || 'sandbox'}}
+  TF_ENV: ${{github.ref == 'refs/heads/production' && 'production' || 'sandbox'}}
   DOMAIN_TLD: ${{github.ref == 'refs/head/production' && 'com' || 'dev'}}
-  AWS_ACCESS_KEY_ID: ${{secrets.TF_VAR_aws_access_key}}
-  AWS_SECRET_ACCESS_KEY: ${{secrets.TF_VAR_aws_secret_key}}
   AWS_REGION: "us-east-1"
-  AWS_DEFAULT_REGION: "us-east-1"
-  PERSONAL_ACCESS_TOKEN: ${{secrets.PERSONAL_ACCESS_TOKEN}}
-  TF_VAR_docker_image_tag: ${{github.sha}}
-  ACTIONS_ROLE_ARN: ${{secrets.ACTIONS_ROLE_ARN}}
 
 jobs:
   build:
@@ -39,8 +33,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-access-key-id: ${{env.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{env.AWS_SECRET_ACCESS_KEY}}
+          aws-access-key-id: ${{secrets.TF_VAR_aws_access_key}}
+          aws-secret-access-key: ${{secrets.TF_VAR_aws_secret_key}}
           aws-region: ${{env.AWS_REGION}}
 
       - name: Setup Terraform
@@ -51,15 +45,15 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init -var="environment=${{ env.TF_ENV }}"
         working-directory: ${{env.TERRAFORM_ROOT}}
       
       - name: Check something quick
         id: check
-        run: echo ${{env.TF_VAR_actions_role_arn}}
+        run: echo ${{secrets.TF_VAR_actions_role_arn}}
 
       - name: Select Terraform Workspace
-        run: terraform workspace select ${{env.DOCKER_ENV}} || terraform workspace new ${{env.DOCKER_ENV}}
+        run: terraform workspace select ${{env.TF_ENV}} || terraform workspace new ${{env.TF_ENV}}
         working-directory: ${{env.TERRAFORM_ROOT}} 
 
       - name: Terraform Plan
@@ -68,26 +62,24 @@ jobs:
         run: |
           terraform plan -out ./app.out
         env:
-          AWS_ACCESS_KEY_ID: ${{env.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{env.AWS_SECRET_ACCESS_KEY}}
+          AWS_ACCESS_KEY_ID: ${{secrets.TF_VAR_aws_access_key}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.TF_VAR_aws_secret_key}}
           TF_VAR_aws_region: ${{env.AWS_REGION}}
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
-          TF_VAR_aws_access_key: ${{env.TF_VAR_aws_access_key}}
-          TF_VAR_aws_secret_key: ${{env.TF_VAR_aws_secret_key}}
-          TF_VAR_actions_role_arn: ${{secrets.ACTIONS_ROLE_ARN}}
+          TF_VAR_aws_access_key: ${{secrets.TF_VAR_aws_access_key}}
+          TF_VAR_aws_secret_key: ${{secrets.TF_VAR_aws_secret_key}}
 
       - name: Terraform apply
         id: apply
         working-directory: ${{env.TERRAFORM_ROOT}}
         run: terraform apply -auto-approve ./app.out
         env:
-          AWS_ACCESS_KEY_ID: ${{env.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{env.AWS_SECRET_ACCESS_KEY}}
+          AWS_ACCESS_KEY_ID: ${{secrets.TF_VAR_aws_access_key}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.TF_VAR_aws_secret_key}}
           TF_VAR_aws_region: ${{env.AWS_REGION}}
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
-          TF_VAR_aws_access_key: ${{env.TF_VAR_aws_access_key}}
-          TF_VAR_aws_secret_key: ${{env.TF_VAR_aws_secret_key}}
-          TF_VAR_actions_role_arn: ${{secrets.ACTIONS_ROLE_ARN}}
+          TF_VAR_aws_access_key: ${{secrets.TF_VAR_aws_access_key}}
+          TF_VAR_aws_secret_key: ${{secrets.TF_VAR_aws_secret_key}}
     
   deploy-static-site: 
     runs-on: ubuntu-latest
@@ -96,15 +88,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          ref: ${{env.DOCKER_ENV}}
+          ref: ${{env.TF_ENV}}
           fetch-depth: 0 
-          token: ${{env.PERSONAL_ACCESS_TOKEN}}
+          token: ${{secrets.PERSONAL_ACCESS_TOKEN}}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          managed-session-policies: arn:aws:iam::aws:policy/AdministratorAccess
-          aws-region: us-east-1
+          aws-access-key-id: ${{secrets.TF_VAR_aws_access_key}}
+          aws-secret-access-key: ${{secrets.TF_VAR_aws_secret_key}}
+          aws-region: ${{env.AWS_REGION}}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -129,9 +122,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{env.DOCKER_ENV}}
+          ref: ${{env.TF_ENV}}
           fetch-depth: 1
-          token: ${{env.PERSONAL_ACCESS_TOKEN}}
+          token: ${{secrets.PERSONAL_ACCESS_TOKEN}}
 
       - name: Configure Git
         run: |
@@ -151,28 +144,3 @@ jobs:
           git push origin production
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    
-
-      # - name: Merge sandbox into production
-      #   uses: actions/github-script@v6
-      #   with:
-      #     github-token: ${{secrets.GITHUB_TOKEN}}
-      #     script: |
-      #       const { repo, owner } = context.repo;
-      #       const result = await github.rest.pulls.create({
-      #         title: 'Automatic merge to production from Github Actions',
-      #         owner,
-      #         repo,
-      #         head: '${{github.ref_name}}',
-      #         base: 'develop',
-      #         body: [
-      #           'This PR is auto-generated by',
-      #           '[actions/github-script](https://github.com/actions/github-script).'
-      #         ].join('\n')
-      #       });
-      #       github.rest.issues.addLabels({
-      #         owner,
-      #         repo,
-      #         issue_number: result.data.number,
-      #         labels: ['feature', 'automated pr']
-      #       });
