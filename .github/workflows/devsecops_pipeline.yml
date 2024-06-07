@@ -122,10 +122,6 @@ jobs:
 
       - name: Deploy Static Files to S3
         run: aws s3 sync ./terraform/static_site/out/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
-        env:
-          AWS_ACCESS_KEY_ID: ${{env.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{env.AWS_SECRET_ACCESS_KEY}}
-          AWS_REGION: "us-east-1"
 
   promote-to-production:
     runs-on: ubuntu-latest
