@@ -101,11 +101,9 @@ jobs:
           token: ${{env.PERSONAL_ACCESS_TOKEN}}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{secrets.TF_VAR_aws_access_key}}
-          aws-secret-access-key:  ${{secrets.TF_VAR_aws_secret_key}}
-          aws-region: "us-east-1"
+          managed-session-policies: arn:aws:iam::aws:policy/AdministratorAccess
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
