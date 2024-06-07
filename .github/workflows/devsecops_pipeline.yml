@@ -104,6 +104,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           managed-session-policies: arn:aws:iam::aws:policy/AdministratorAccess
+          aws-region: us-east-1
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
