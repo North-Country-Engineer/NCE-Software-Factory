@@ -96,7 +96,7 @@ jobs:
   
       - name: Merge sandbox into production
         env:
-          GH_PAT: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git checkout production
           git merge sandbox --no-edit
