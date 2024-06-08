@@ -28,7 +28,7 @@ jobs:
         with:
           ref: ${{env.TF_ENV}}
           fetch-depth: 0 
-          token: ${{ github.token }}s
+          token: ${{ github.token }}
 
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-node@v3
