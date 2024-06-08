@@ -52,10 +52,6 @@ jobs:
       - name: Build Next.js Site
         run: npm run build
         working-directory: ./terraform/static_site
-
-      - name: Export static files
-        run: npm run export
-        working-directory: ./terraform/static_site
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
