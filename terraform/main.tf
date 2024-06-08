@@ -81,7 +81,7 @@ resource "aws_s3_bucket_website_configuration" "site" {
     }
 
     error_document {
-        key = "error.html"
+        key = "404.html"
     }
 }
 
@@ -148,6 +148,16 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
   versioning_configuration {
     status = "Enabled"
   }
+}
+
+resource "aws_s3_bucket_object" "static_files" {
+  for_each = fileset("${path.module}/static_site/out", "**/*")
+
+  bucket = aws_s3_bucket.static_site.bucket
+  key    = each.value
+  source = "${path.module}/static_site/out/${each.value}"
+  etag   = filemd5("${path.module}/static_site/out/${each.value}")
+  acl    = "public-read"
 }
 
 terraform {

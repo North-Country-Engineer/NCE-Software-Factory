@@ -43,7 +43,20 @@ jobs:
       
       - name: Set Environment Variable
         run: echo "TF_ENV=${{env.TF_ENV}}" >> $GITHUB_ENV
-    
+      
+      
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./terraform/static_site
+
+      - name: Build Next.js Site
+        run: npm run build
+        working-directory: ./terraform/static_site
+
+      - name: Export static files
+        run: npm run export
+        working-directory: ./terraform/static_site
+      
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -68,41 +81,41 @@ jobs:
           TF_VAR_aws_region: ${{env.AWS_REGION}}
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
 
-  deploy-static-site: 
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{env.TF_ENV}}
-          fetch-depth: 0 
-          token: ${{ github.token }}
+  # deploy-static-site: 
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         ref: ${{env.TF_ENV}}
+  #         fetch-depth: 0 
+  #         token: ${{ github.token }}
 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: arn:aws:iam::${{secrets.TF_VAR_aws_account_id}}:role/GitHubAction-AssumeRoleWithAction
-      #     aws-region: ${{ env.AWS_REGION }}
+  #     # - name: Configure AWS Credentials
+  #     #   uses: aws-actions/configure-aws-credentials@v4
+  #     #   with:
+  #     #     role-to-assume: arn:aws:iam::${{secrets.TF_VAR_aws_account_id}}:role/GitHubAction-AssumeRoleWithAction
+  #     #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{env.NODE_VERSION}}
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{env.NODE_VERSION}}
       
-      - name: Install Dependencies
-        run: npm install
-        working-directory: ./terraform/static_site
+  #     - name: Install Dependencies
+  #       run: npm install
+  #       working-directory: ./terraform/static_site
 
-      - name: Build Next.js Site
-        run: npm run build
-        working-directory: ./terraform/static_site
+  #     - name: Build Next.js Site
+  #       run: npm run build
+  #       working-directory: ./terraform/static_site
 
-      - name: Deploy Static Files to S3
-        run: aws s3 sync ./terraform/static_site/out/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
+  #     - name: Deploy Static Files to S3
+  #       run: aws s3 sync ./terraform/static_site/out/ s3://upstate-tech.${{env.DOMAIN_TLD}} --delete
 
   promote-to-production:
     runs-on: ubuntu-latest
-    needs: deploy-static-site
+    needs: build
     if: success() && github.ref == 'refs/heads/sandbox'
     steps:
       - uses: actions/checkout@v4
