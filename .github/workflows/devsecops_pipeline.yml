@@ -62,7 +62,7 @@ jobs:
           TF_VAR_aws_secret_key: ${{secrets.TF_VAR_aws_secret_key}}
           TF_VAR_aws_region: ${{env.AWS_REGION}}
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
-    
+  #
   deploy-static-site: 
     runs-on: ubuntu-latest
     needs: build
