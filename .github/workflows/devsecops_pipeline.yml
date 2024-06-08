@@ -50,7 +50,7 @@ jobs:
         working-directory: ${{env.TERRAFORM_ROOT}}
 
       - name: Select Terraform Workspace
-        run: terraform workspace select ${{env.TF_ENV}} -or-create
+        run: terraform workspace select ${{env.TF_ENV}} -or-create=true
         working-directory: ${{env.TERRAFORM_ROOT}} 
 
       - name: Terraform apply
