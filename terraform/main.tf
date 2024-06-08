@@ -144,7 +144,7 @@ resource "aws_s3_bucket_policy" "site" {
 }
 
 resource "aws_s3_bucket_versioning" "versioning_example" {
-  bucket = daws_s3_bucket.site.id
+  bucket = aws_s3_bucket.site.id
   versioning_configuration {
     status = "Enabled"
   }
