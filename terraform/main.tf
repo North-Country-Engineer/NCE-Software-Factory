@@ -154,9 +154,11 @@ resource "aws_s3_bucket_object" "static_files" {
   for_each = fileset("${path.module}/static_site/out", "**/*")
 
   bucket = aws_s3_bucket.site.id
-  key    = each.value
-  source = "${path.module}/static_site/out/${each.value}"
-  etag   = filemd5("${path.module}/static_site/out/${each.value}")
+  key          = each.key
+  content_type = each.value.content_type
+  source  = each.value.source_path
+  content = each.value.content
+  etag = each.value.digests.md5
   acl    = "public-read"
 }
 
