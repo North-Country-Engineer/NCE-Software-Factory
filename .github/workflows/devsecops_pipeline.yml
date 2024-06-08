@@ -26,9 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{env.DOCKER_ENV}}
+          ref: ${{env.TF_ENV}}
           fetch-depth: 0 
-          token: ${{env.PERSONAL_ACCESS_TOKEN}}
+          token: ${{ github.token }}s
 
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-node@v3
