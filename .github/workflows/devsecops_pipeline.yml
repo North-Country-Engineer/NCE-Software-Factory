@@ -89,15 +89,20 @@ jobs:
           fetch-depth: 0 
           token: ${{ github.token }}
 
-      # - name: Configure Git
-      #   run: |
-      #     git config user.name "GitHub Actions"
-      #     git config user.email "actions@github.com"
-  
-      - name: Merge sandbox into production
-        env:
-          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Git
         run: |
-          git checkout production
-          git merge sandbox --no-edit
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+  
+      - name: Checkout production branch
+        run: git checkout production
+
+      - name: Merge changes from sandbox
+        run: git merge sandbox
+
+      - name: Push to production
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/North-Country-Engineer/NCE-Software-Factory.git
           git push origin production
