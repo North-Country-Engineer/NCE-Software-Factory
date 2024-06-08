@@ -124,12 +124,6 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-
-      - name: Create or pull production
-        run: |
-          git pull origin production
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   
       - name: Merge sandbox into production
         run: |
