@@ -37,7 +37,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       
       - name: Set Environment Variable
-        run: echo "TF_ENV=${{ github.ref == 'refs/heads/production' && 'production' || 'development' }}" >> $GITHUB_ENV
+        run: echo "TF_ENV=${{env.TF_ENV}}" >> $GITHUB_ENV
     
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
