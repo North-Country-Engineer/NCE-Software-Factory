@@ -152,7 +152,7 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
 
 resource "aws_s3_object" "static_files" {
     for_each     = fileset(path.module, "content/**/*.{html,css,js}")
-    bucket       = aws_s3_bucket.bucket.id
+    bucket       = aws_s3_bucket.site.id
     key          = replace(each.value, "/^content//", "")
     source       = each.value
     content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
