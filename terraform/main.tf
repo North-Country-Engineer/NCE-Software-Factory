@@ -161,7 +161,7 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
 }
 
 resource "aws_s3_object" "static_files" {
-    for_each     = fileset(path.module, "content/**/*.{html,css,js}")
+    for_each = fileset("${path.module}/static_site/out", "**/*")
     bucket       = aws_s3_bucket.site.id
     key          = replace(each.value, "/^content//", "")
     source       = each.value
