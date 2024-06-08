@@ -115,11 +115,11 @@ jobs:
     needs: build
     if: success() && github.ref == 'refs/heads/sandbox'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          ref: 'development'
+          ref: ${{env.TF_ENV}}
           fetch-depth: 0 
-          token: ${{ env.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Configure Git
         run: |
