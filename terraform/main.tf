@@ -160,29 +160,10 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
   }
 }
 
-resource "aws_s3_object" "static_files" {
-    for_each = fileset("${path.module}/static_site/out", "**/*")
-    bucket       = aws_s3_bucket.site.id
-    key          = replace(each.value, "/^content//", "")
-    source       = each.value
-    content_type = lookup(
-        {
-            "html" = "text/html"
-            "css"  = "text/css"
-            "js"   = "application/javascript"
-            "json" = "application/json"
-            "png"  = "image/png"
-            "jpg"  = "image/jpeg"
-            "jpeg" = "image/jpeg"
-            "gif"  = "image/gif"
-            "svg"  = "image/svg+xml"
-            "ico"  = "image/x-icon"
-            "txt"  = "text/plain"
-        }, 
-        regex(".*\\.([^\\.]*)$", each.value)[0], # Extract the file extension
-        "application/octet-stream" # Default content type if not found
-    )
-    source_hash  = filemd5(each.value)
+resource "null_resource" "update_source_files" {
+    provisioner "local-exec" {
+        command     = "aws s3 sync ./terraform/static_site/out/ s3://${aws_s3_bucket.site.id} --delete" 
+    }
 }
 
 terraform {
