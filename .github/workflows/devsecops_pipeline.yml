@@ -67,7 +67,7 @@ jobs:
           TF_VAR_aws_secret_key: ${{secrets.TF_VAR_aws_secret_key}}
           TF_VAR_aws_region: ${{env.AWS_REGION}}
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
-  #
+
   deploy-static-site: 
     runs-on: ubuntu-latest
     needs: build
@@ -78,11 +78,11 @@ jobs:
           fetch-depth: 0 
           token: ${{ github.token }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{secrets.TF_VAR_aws_account_id}}:role/GitHubAction-AssumeRoleWithAction
-          aws-region: ${{ env.AWS_REGION }}
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: arn:aws:iam::${{secrets.TF_VAR_aws_account_id}}:role/GitHubAction-AssumeRoleWithAction
+      #     aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
