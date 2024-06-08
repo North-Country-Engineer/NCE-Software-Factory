@@ -152,7 +152,7 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
 
 terraform {
   backend "s3" {
-    bucket  = "ncacademy-global-tf-state"
+    bucket  = "upstate-tech-pipelines-global-terraform-state"
     key     = "global_state/terraform.tfstate"
     region  = "us-east-1"
   }
