@@ -162,7 +162,7 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
 
 resource "null_resource" "update_source_files" {
     provisioner "local-exec" {
-        command     = "aws s3 sync ./terraform/static_site/out/ s3://${aws_s3_bucket.site.id} --delete" 
+        command     = "aws s3 sync ./static_site/out/ s3://${aws_s3_bucket.site.id} --delete" 
     }
 }
 
