@@ -166,7 +166,7 @@ resource "null_resource" "update_source_files" {
     }
 }
 
-// Cloudfront distribution for S3 bucket
+// Cloudfront distribution for S3 bucket: AWS has a bug with accounts created as organizations which is blocking any abilty to have cloudfront.
 # resource "aws_cloudfront_distribution" "site_distribution" {
 #     origin {
 #         domain_name = aws_s3_bucket.site.bucket_regional_domain_name
