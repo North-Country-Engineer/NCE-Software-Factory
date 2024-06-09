@@ -163,7 +163,7 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
 resource "aws_s3_bucket_object" "static_files" {
     for_each = fileset("${path.module}/static_site/out", "**/*")
 
-    bucket = aws_s3_bucket.static_site.bucket
+    bucket = aws_s3_bucket.site.bucket
     key    = each.value
     source = "${path.module}/static_site/out/${each.value}"
     etag   = filemd5("${path.module}/static_site/out/${each.value}")
