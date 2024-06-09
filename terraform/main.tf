@@ -166,6 +166,59 @@ resource "null_resource" "update_source_files" {
     }
 }
 
+// Cloudfront distribution for S3 bucket
+resource "aws_cloudfront_distribution" "site_distribution" {
+    origin {
+        domain_name = aws_s3_bucket.site.bucket_regional_domain_name
+        origin_id   = "S3-${aws_s3_bucket.site.bucket}"
+
+        s3_origin_config {
+        origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
+        }
+    }
+
+    enabled             = true
+    is_ipv6_enabled     = true
+    comment             = "CloudFront distribution for ${var.site_domain}"
+    default_root_object = "index.html"
+
+    default_cache_behavior {
+        target_origin_id       = "S3-${aws_s3_bucket.site.bucket}"
+        viewer_protocol_policy = "redirect-to-https"
+        allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+        cached_methods         = ["GET", "HEAD"]
+
+        forwarded_values {
+        query_string = false
+        cookies {
+            forward = "none"
+        }
+        }
+
+        min_ttl                = 0
+        default_ttl            = 86400
+        max_ttl                = 31536000
+    }
+
+    price_class = "PriceClass_100"
+
+    restrictions {
+        geo_restriction {
+        restriction_type = "none"
+        }
+    }
+
+    viewer_certificate {
+        cloudfront_default_certificate = true
+    }
+}
+
+resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+    comment = "OAI for ${aws_s3_bucket.site.bucket}"
+}
+
+
+//State storage
 terraform {
   backend "s3" {
     bucket  = "upstate-tech-pipelines-global-terraform-state"
