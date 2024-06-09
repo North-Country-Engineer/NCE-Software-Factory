@@ -160,7 +160,7 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
   }
 }
 
-resource "aws_s3_bucket_object" "static_files" {
+resource "aws_s3_object" "static_files" {
     for_each = fileset("${path.module}/static_site/out", "**/*")
 
     bucket = aws_s3_bucket.site.bucket
