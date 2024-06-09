@@ -71,7 +71,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -var="environment=${{ env.TF_ENV }}"
+        run: terraform init -var="environment=${{ env.TF_ENV }}" -upgrade
         working-directory: ${{env.TERRAFORM_ROOT}}
 
       - name: Select Terraform Workspace
