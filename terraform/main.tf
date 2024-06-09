@@ -160,11 +160,21 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
   }
 }
 
-resource "null_resource" "update_source_files" {
-    provisioner "local-exec" {
-        command     = "aws s3 sync ./static_site/out/ s3://${aws_s3_bucket.site.id} --delete" 
-    }
+resource "aws_s3_bucket_object" "static_files" {
+    for_each = fileset("${path.module}/static_site/out", "**/*")
+
+    bucket = aws_s3_bucket.static_site.bucket
+    key    = each.value
+    source = "${path.module}/static_site/out/${each.value}"
+    etag   = filemd5("${path.module}/static_site/out/${each.value}")
+    acl    = "public-read"
 }
+
+# resource "null_resource" "update_source_files" {
+#     provisioner "local-exec" {
+#         command     = "aws s3 sync ./static_site/out/ s3://${aws_s3_bucket.site.id} --delete" 
+#     }
+# }
 
 // Cloudfront distribution for S3 bucket: AWS has a bug with accounts created as organizations which is blocking any abilty to have cloudfront.
 # resource "aws_cloudfront_distribution" "site_distribution" {
