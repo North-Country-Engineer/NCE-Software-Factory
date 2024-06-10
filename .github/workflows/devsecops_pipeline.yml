@@ -89,6 +89,8 @@ jobs:
           TF_VAR_aws_secret_key: ${{secrets.TF_VAR_aws_secret_key}}
           TF_VAR_aws_region: ${{env.AWS_REGION}}
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
+          TF_VAR_cloudflare_api_token: ${{ env.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_zone_id: ${{ env.CLOUDFLARE_ZONE_ID }}
 
 
 
