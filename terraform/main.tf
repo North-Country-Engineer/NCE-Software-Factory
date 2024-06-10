@@ -12,7 +12,8 @@ locals {
     ".svg"  = "image/svg+xml",
     ".ico"  = "image/x-icon",
     ".txt"  = "text/plain"
-  }
+  },
+  domains = [var.site_domain, "www.${var.site_domain}"]
 }
 
 # Configure AWS provider
@@ -189,8 +190,51 @@ resource "aws_s3_object" "static_files" {
     content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
 }
 
-// Cloudfront distribution for S3 bucket
+# Create an ACM certificate for cloudfront 
+resource "aws_acm_certificate" "acm_certificate" {
+    domain_name               = aws_s3_bucket.site.bucket_regional_domain_name
+    validation_method         = "DNS"
+    subject_alternative_names = local.domains
+
+    lifecycle {
+        create_before_destroy = true
+    }
+
+    tags = {
+        Description = "TF-Created"
+    }
+}
+
+# Fetch validation records from ACM
+resource "cloudflare_record" "cert_validation" {
+    for_each = {
+        for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+            name   = dvo.resource_record_name
+            type   = dvo.resource_record_type
+            record = dvo.resource_record_value
+        }
+    }
+
+    zone_id = var.cloudflare_zone_id
+    name    = each.value.name
+    type    = each.value.type
+    value   = each.value.record
+    ttl     = 60
+}
+
+# ACM certificate validation
+resource "aws_acm_certificate_validation" "cert_validation" {
+    certificate_arn         = aws_acm_certificate.cert.arn
+    validation_record_fqdns = [for record in cloudflare_record.cert_validation : record.hostname]
+}
+
+
+# Cloudfront distribution for S3 bucket
 resource "aws_cloudfront_distribution" "site_distribution" {
+    depends_on = [
+        aws_acm_certificate_validation.cert_validation
+    ]
+
     origin {
         domain_name = aws_s3_bucket.site.bucket_regional_domain_name
         origin_id   = "S3-${aws_s3_bucket.site.bucket}"
@@ -232,7 +276,9 @@ resource "aws_cloudfront_distribution" "site_distribution" {
     }
 
     viewer_certificate {
-        cloudfront_default_certificate = true
+        acm_certificate_arn            = aws_acm_certificate.cert.arn
+        ssl_support_method             = "sni-only"
+        minimum_protocol_version       = "TLSv1.2_2021"
     }
 }
 
