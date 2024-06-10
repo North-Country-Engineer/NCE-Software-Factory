@@ -175,7 +175,7 @@ resource "aws_s3_object" "static_files" {
     key    = each.value
     source = "${path.module}/static_site/out/${each.value}"
     etag   = filemd5("${path.module}/static_site/out/${each.value}")
-    content_type = lookup(local.content_types, regex(".*\\.([^\\.]*)$", each.value)[0], "application/octet-stream")
+    content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
 }
 
 # resource "null_resource" "update_source_files" {
