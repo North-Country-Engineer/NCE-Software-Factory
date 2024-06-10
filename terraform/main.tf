@@ -24,7 +24,6 @@ provider "aws" {
 }
 
 provider "cloudflare" {
-    email   = "eric@northcountryengineer.com"
     api_token = var.cloudflare_api_token
 }
 
