@@ -118,33 +118,32 @@ resource "aws_s3_bucket_policy" "site" {
     policy = jsonencode({
         Version = "2012-10-17",
         Statement = [
-            {
-                Sid       = "PublicReadGetObject",
-                Effect    = "Allow",
-                Principal = "*",
-                Action    = "s3:GetObject",
-                Resource  = [
-                    aws_s3_bucket.site.arn,
-                    "${aws_s3_bucket.site.arn}/*"
-                ]
+        {
+            Sid: "PublicReadGetObject",
+            Effect: "Allow",
+            Principal: "*",
+            Action: "s3:GetObject",
+            Resource: [
+            "${aws_s3_bucket.site.arn}/*"
+            ]
+        },
+        {
+            Sid: "AllowS3ActionsForCI",
+            Effect: "Allow",
+            Principal: {
+                "AWS": "${aws_iam_role.github_actions_role.arn}"
             },
-            {
-                Sid       = "AllowS3ActionsForCI",
-                Effect    = "Allow",
-                Principal = {
-                    AWS: "${aws_iam_role.github_actions_role.arn}"
-                },
-                Action    = [
-                    "s3:GetObject",
-                    "s3:PutObject",
-                    "s3:DeleteObject",
-                    "s3:ListBucket"
-                ],
-                Resource  = [
-                    aws_s3_bucket.site.arn,
-                    "${aws_s3_bucket.site.arn}/*"
-                ]
-            }
+            Action: [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:ListBucket"
+            ],
+            Resource: [
+            "${aws_s3_bucket.site.arn}",
+            "${aws_s3_bucket.site.arn}/*"
+            ]
+        }
         ]
     })
 
@@ -153,7 +152,8 @@ resource "aws_s3_bucket_policy" "site" {
     ]
 }
 
-resource "aws_s3_bucket_versioning" "versioning_example" {
+
+resource "aws_s3_bucket_versioning" "site_bucket_versioning" {
   bucket = aws_s3_bucket.site.id
   versioning_configuration {
     status = "Enabled"
@@ -167,7 +167,6 @@ resource "aws_s3_object" "static_files" {
     key    = each.value
     source = "${path.module}/static_site/out/${each.value}"
     etag   = filemd5("${path.module}/static_site/out/${each.value}")
-    acl    = "public-read"
 }
 
 # resource "null_resource" "update_source_files" {
