@@ -81,11 +81,11 @@ jobs:
         working-directory: ${{ env.TERRAFORM_ROOT }} 
 
       - name: Run custom terraform apply command to validate cert on cloudflare side
-        run: terraform apply -target=cloudflare_record.cert_validation
+        run: terraform apply -target=cloudflare_record.cert_validation -auto-approve
         working-directory: ${{ env.TERRAFORM_ROOT }}
       
       - name: Run custom terraform apply command to validate cert on AWS side
-        run: terraform apply -target=aws_acm_certificate_validation.cert_validation
+        run: terraform apply -target=aws_acm_certificate_validation.cert_validation -auto-approve
         working-directory: ${{ env.TERRAFORM_ROOT }}
 
       # - name: Terraform apply
