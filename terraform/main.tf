@@ -23,6 +23,10 @@ provider "aws" {
     secret_key = var.aws_secret_key
 }
 
+provider "cloudflare" {
+    api_token = var.cloudflare_api_token
+}
+
 # IAM Role for GitHub Actions
 resource "aws_iam_role" "github_actions_role" {
     name = "github-actions-role"
