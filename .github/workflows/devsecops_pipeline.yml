@@ -83,7 +83,7 @@ jobs:
       - name: Terraform apply
         id: apply
         working-directory: ${{env.TERRAFORM_ROOT}}
-        run: terraform apply -auto-approve -target=aws_acm_certificate.cert //remove -target=aws_acm_certificate.cert after next push
+        run: terraform apply -auto-approve -target=aws_acm_certificate.cert
         env:
           TF_VAR_aws_access_key: ${{secrets.TF_VAR_aws_access_key}}
           TF_VAR_aws_secret_key: ${{secrets.TF_VAR_aws_secret_key}}
