@@ -19,6 +19,7 @@ env:
   PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   CLOUDFLARE_API_TOKEN: ${{ secrets.TF_VAR_cloudflare_api_token }}
   CLOUDFLARE_ZONE_ID: ${{ secrets.TF_VAR_cloudflare_zone_id }}
+  CLOUDFLARE_EMAIL: "eric@northcountryengineer.com"
 
 jobs:
   build:
@@ -90,6 +91,7 @@ jobs:
               TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
               TF_VAR_cloudflare_api_token: ${{ env.CLOUDFLARE_API_TOKEN }}
               TF_VAR_cloudflare_zone_id: ${{ env.CLOUDFLARE_ZONE_ID }}
+              TF_VAR_cloudflare_email: ${{ env.CLOUDFLARE_EMAIL }}
       
       - name: Run custom terraform apply command to validate cert on AWS side
         run: terraform apply -target=aws_acm_certificate_validation.cert_validation -auto-approve
@@ -101,6 +103,7 @@ jobs:
               TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
               TF_VAR_cloudflare_api_token: ${{ env.CLOUDFLARE_API_TOKEN }}
               TF_VAR_cloudflare_zone_id: ${{ env.CLOUDFLARE_ZONE_ID }}
+              TF_VAR_cloudflare_email: ${{ env.CLOUDFLARE_EMAIL }}
 
       # - name: Terraform apply
       #   id: apply
