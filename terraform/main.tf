@@ -212,7 +212,7 @@ resource "aws_acm_certificate" "acm_certificate" {
 # Fetch validation records from ACM
 resource "cloudflare_record" "cert_validation" {
     for_each = {
-        for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+        for dvo in aws_acm_certificate.acm_certificate.domain_validation_options : dvo.domain_name => {
             name   = dvo.resource_record_name
             type   = dvo.resource_record_type
             record = dvo.resource_record_value
@@ -228,7 +228,7 @@ resource "cloudflare_record" "cert_validation" {
 
 # ACM certificate validation
 resource "aws_acm_certificate_validation" "cert_validation" {
-    certificate_arn         = aws_acm_certificate.cert.arn
+    certificate_arn         = aws_acm_certificate.acm_certificate.arn
     validation_record_fqdns = [for record in cloudflare_record.cert_validation : record.hostname]
 }
 
@@ -280,7 +280,7 @@ resource "aws_cloudfront_distribution" "site_distribution" {
     }
 
     viewer_certificate {
-        acm_certificate_arn            = aws_acm_certificate.cert.arn
+        acm_certificate_arn            = aws_acm_certificate.acm_certificate.arn
         ssl_support_method             = "sni-only"
         minimum_protocol_version       = "TLSv1.2_2021"
     }
@@ -288,9 +288,9 @@ resource "aws_cloudfront_distribution" "site_distribution" {
 
 //State storage
 terraform {
-  backend "s3" {
-    bucket  = "upstate-tech-pipelines-global-terraform-state"
-    key     = "global_state/terraform.tfstate"
-    region  = "us-east-1"
-  }
+    backend "s3" {
+        bucket  = "upstate-tech-pipelines-global-terraform-state"
+        key     = "global_state/terraform.tfstate"
+        region  = "us-east-1"
+    }
 }
