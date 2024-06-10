@@ -1,9 +1,17 @@
 
 locals {
   content_types = {
-    ".html" : "text/html",
-    ".css" : "text/css",
-    ".js" : "text/javascript"
+    ".html" = "text/html",
+    ".css"  = "text/css",
+    ".js"   = "application/javascript",
+    ".json" = "application/json",
+    ".png"  = "image/png",
+    ".jpg"  = "image/jpeg",
+    ".jpeg" = "image/jpeg",
+    ".gif"  = "image/gif",
+    ".svg"  = "image/svg+xml",
+    ".ico"  = "image/x-icon",
+    ".txt"  = "text/plain"
   }
 }
 
@@ -167,6 +175,7 @@ resource "aws_s3_object" "static_files" {
     key    = each.value
     source = "${path.module}/static_site/out/${each.value}"
     etag   = filemd5("${path.module}/static_site/out/${each.value}")
+    content_type = lookup(local.content_types, regex(".*\\.([^\\.]*)$", each.value)[0], "application/octet-stream")
 }
 
 # resource "null_resource" "update_source_files" {
