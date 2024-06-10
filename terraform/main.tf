@@ -1,4 +1,4 @@
-
+# Define content types for various file extensions
 locals {
   content_types = {
     ".html" = "text/html",
@@ -15,16 +15,14 @@ locals {
   }
 }
 
-
+# Configure AWS provider
 provider "aws" {
     region = var.aws_region
     access_key = var.aws_access_key
     secret_key = var.aws_secret_key
 }
 
-# IAM - Commented out other than for initial stage builds
-
-# IAM Role
+# IAM Role for GitHub Actions
 resource "aws_iam_role" "github_actions_role" {
     name = "github-actions-role"
     assume_role_policy = jsonencode({
@@ -41,7 +39,7 @@ resource "aws_iam_role" "github_actions_role" {
     })
 }
 
-# IAM Policy
+# IAM Policy to allow GitHub Actions to access the S3 bucket
 resource "aws_iam_policy" "github_actions_policy" {
     name        = "github-actions-policy"
     description = "Policy for GitHub Actions to access S3 bucket"
@@ -65,23 +63,24 @@ resource "aws_iam_policy" "github_actions_policy" {
     })
 }
 
-# Attach Policy to Role
+# Attach the IAM Policy to the IAM Role
 resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
     role       = aws_iam_role.github_actions_role.name
     policy_arn = aws_iam_policy.github_actions_policy.arn
 }
 
-# Output the Role ARN
+# Output the ARN of the GitHub Actions IAM Role
 output "github_actions_role_arn" {
     value = aws_iam_role.github_actions_role.arn
 }
 
-//AWS S3
+# Define the S3 bucket for the site. S3 is holding built static files for the next project and sits behind a cloudfront distribution
 resource "aws_s3_bucket" "site" {
     bucket = var.site_domain
     force_destroy = true
 }
 
+# Configure public access settings for the S3 bucket
 resource "aws_s3_bucket_public_access_block" "site" {
     bucket = aws_s3_bucket.site.id
 
@@ -91,6 +90,7 @@ resource "aws_s3_bucket_public_access_block" "site" {
     restrict_public_buckets = false
 }
 
+# Configure the S3 bucket for static website hosting
 resource "aws_s3_bucket_website_configuration" "site" {
     bucket = aws_s3_bucket.site.id
 
@@ -103,6 +103,7 @@ resource "aws_s3_bucket_website_configuration" "site" {
     }
 }
 
+# Set ownership controls for the S3 bucket
 resource "aws_s3_bucket_ownership_controls" "site" {
     bucket = aws_s3_bucket.site.id
     rule {
@@ -110,6 +111,7 @@ resource "aws_s3_bucket_ownership_controls" "site" {
     }
 }
 
+# Set the ACL for the S3 bucket to public-read
 resource "aws_s3_bucket_acl" "site" {
     bucket = aws_s3_bucket.site.id
 
@@ -120,6 +122,12 @@ resource "aws_s3_bucket_acl" "site" {
     ]
 }
 
+# Define CloudFront Origin Access Identity
+resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+    comment = "OAI for ${aws_s3_bucket.site.bucket}"
+}
+
+# Define the S3 bucket policy to allow public read access and CI actions
 resource "aws_s3_bucket_policy" "site" {
     bucket = aws_s3_bucket.site.id
 
@@ -127,12 +135,14 @@ resource "aws_s3_bucket_policy" "site" {
         Version = "2012-10-17",
         Statement = [
         {
-            Sid: "PublicReadGetObject",
+            Sid: "AllowCloudFrontAccess",
             Effect: "Allow",
-            Principal: "*",
+            Principal: {
+                "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
+            },
             Action: "s3:GetObject",
             Resource: [
-            "${aws_s3_bucket.site.arn}/*"
+                "${aws_s3_bucket.site.arn}/*"
             ]
         },
         {
@@ -160,7 +170,7 @@ resource "aws_s3_bucket_policy" "site" {
     ]
 }
 
-
+# Enable versioning for the S3 bucket
 resource "aws_s3_bucket_versioning" "site_bucket_versioning" {
   bucket = aws_s3_bucket.site.id
   versioning_configuration {
@@ -168,6 +178,7 @@ resource "aws_s3_bucket_versioning" "site_bucket_versioning" {
   }
 }
 
+# Upload static files to the S3 bucket with appropriate content types
 resource "aws_s3_object" "static_files" {
     for_each = fileset("${path.module}/static_site/out", "**/*")
 
@@ -178,13 +189,7 @@ resource "aws_s3_object" "static_files" {
     content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
 }
 
-# resource "null_resource" "update_source_files" {
-#     provisioner "local-exec" {
-#         command     = "aws s3 sync ./static_site/out/ s3://${aws_s3_bucket.site.id} --delete" 
-#     }
-# }
-
-// Cloudfront distribution for S3 bucket: AWS has a bug with accounts created as organizations which is blocking any abilty to have cloudfront.
+// Cloudfront distribution for S3 bucket
 resource "aws_cloudfront_distribution" "site_distribution" {
     origin {
         domain_name = aws_s3_bucket.site.bucket_regional_domain_name
@@ -229,10 +234,6 @@ resource "aws_cloudfront_distribution" "site_distribution" {
     viewer_certificate {
         cloudfront_default_certificate = true
     }
-}
-
-resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-    comment = "OAI for ${aws_s3_bucket.site.bucket}"
 }
 
 //State storage
