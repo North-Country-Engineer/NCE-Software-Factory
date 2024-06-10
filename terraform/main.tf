@@ -177,10 +177,10 @@ resource "aws_s3_bucket_policy" "site" {
 
 # Enable versioning for the S3 bucket
 resource "aws_s3_bucket_versioning" "site_bucket_versioning" {
-  bucket = aws_s3_bucket.site.id
-  versioning_configuration {
-    status = "Enabled"
-  }
+    bucket = aws_s3_bucket.site.id
+    versioning_configuration {
+        status = "Enabled"
+    }
 }
 
 # Upload static files to the S3 bucket with appropriate content types
@@ -196,8 +196,8 @@ resource "aws_s3_object" "static_files" {
 
 # Create an ACM certificate for cloudfront 
 resource "aws_acm_certificate" "acm_certificate" {
-    domain_name               = aws_s3_bucket.site.bucket_regional_domain_name
-    validation_method         = "DNS"
+    domain_name               = local.domains[0]
+    //validation_method         = "DNS"
     subject_alternative_names = local.domains
 
     lifecycle {
