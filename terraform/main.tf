@@ -13,7 +13,7 @@ locals {
         ".ico"  = "image/x-icon",
         ".txt"  = "text/plain"
     }
-    domains = [var.site_domain, "www.${var.site_domain}"]
+    domains = ["www.${var.site_domain}"]
 }
 
 # Configure AWS provider
@@ -26,6 +26,37 @@ provider "aws" {
 provider "cloudflare" {
     api_token = var.cloudflare_api_token
 }
+
+
+
+# Create an ACM certificate
+resource "aws_acm_certificate" "acm_certificate" {
+    domain_name               = var.site_domain
+    validation_method         = "DNS"
+    subject_alternative_names = local.domains
+    lifecycle {
+        create_before_destroy = true
+    } 
+}
+
+
+locals {
+    validation = [
+        for dvo in aws_acm_certificate.acm_certificate.domain_validation_options : dvo.domain_name => {
+            name    = dvo.resource_record_name
+            value   = trimsuffix(dvo.resource_record_value, ".")
+            type    = dvo.resource_record_type
+            zone_id = var.cloudflare_zone_id
+        }
+    ]
+
+    validation_map = { 
+        for item in local.validation : keys(item)[0] => values(item)[0]
+    }
+}
+
+
+
 
 # IAM Role for GitHub Actions
 resource "aws_iam_role" "github_actions_role" {
@@ -194,39 +225,18 @@ resource "aws_s3_object" "static_files" {
     content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
 }
 
-# Create an ACM certificate for cloudfront 
-resource "aws_acm_certificate" "acm_certificate" {
-    domain_name               = local.domains[0]
-    //validation_method         = "DNS"
-    subject_alternative_names = local.domains
+# Validate cert
+resource "cloudflare_record" "cloudflare_validation" {
+    for_each = local.validation_map
 
-    lifecycle {
-        create_before_destroy = true
-    }
-
-    tags = {
-        Description = "TF-Created"
-    }
+    zone_id = local.validation_map[each.key]["zone_id"]
+    name    = local.validation_map[each.key]["name"]
+    value   = local.validation_map[each.key]["value"]
+    type    = local.validation_map[each.key]["type"]
+    ttl     = 1
+    proxied = false #important otherwise validation will fail
 }
 
-# Fetch validation records from ACM
-resource "cloudflare_record" "cert_validation" {
-    for_each = {
-        for dvo in aws_acm_certificate.acm_certificate.domain_validation_options : dvo.domain_name => {
-            name   = dvo.resource_record_name
-            type   = dvo.resource_record_type
-            record = dvo.resource_record_value
-        }
-    }
-
-    zone_id = var.cloudflare_zone_id
-    name    = each.value.name
-    type    = each.value.type
-    value   = each.value.record
-    ttl     = 60
-}
-
-# ACM certificate validation
 resource "aws_acm_certificate_validation" "cert_validation" {
     certificate_arn         = aws_acm_certificate.acm_certificate.arn
     validation_record_fqdns = [for record in cloudflare_record.cert_validation : record.hostname]
