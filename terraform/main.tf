@@ -45,7 +45,7 @@ locals {
             name    = dvo.resource_record_name
             value   = trimsuffix(dvo.resource_record_value, ".")
             type    = dvo.resource_record_type
-            zone_id = data.cloudflare_zone.this.id
+            zone_id = var.cloudflare_zone_id
         }
     ]
 }
@@ -221,15 +221,17 @@ resource "aws_s3_object" "static_files" {
 }
 
 # Validate cert
-resource "cloudflare_record" "cloudflare_validation" {
-    for_each = local.validation_map
+resource "cloudflare_record" "validation" {
+    count = length(local.validation_records)
 
-    zone_id = local.validation_map[each.key]["zone_id"]
-    name    = local.validation_map[each.key]["name"]
-    value   = local.validation_map[each.key]["value"]
-    type    = local.validation_map[each.key]["type"]
-    ttl     = 1
-    proxied = false #important otherwise validation will fail
+    zone_id = local.validation_records[count.index].zone_id
+    name    = local.validation_records[count.index].name
+    type    = local.validation_records[count.index].type
+    value   = local.validation_records[count.index].value
+    ttl     = 60
+    proxied = false
+
+    allow_overwrite = true
 }
 
 resource "aws_acm_certificate_validation" "cert_validation" {
