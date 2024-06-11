@@ -81,18 +81,6 @@ jobs:
         run: terraform workspace select -or-create ${{env.TF_ENV}}
         working-directory: ${{ env.TERRAFORM_ROOT }} 
 
-      - name: Run custom terraform apply command to validate cert on cloudflare side
-        working-directory: ${{ env.TERRAFORM_ROOT }}
-        run: terraform apply -target=cloudflare_record.cert_validation -auto-approve && terraform apply -target=aws_acm_certificate_validation.cert_validation -auto-approve
-        env:
-              TF_VAR_aws_access_key: ${{secrets.TF_VAR_aws_access_key}}
-              TF_VAR_aws_secret_key: ${{secrets.TF_VAR_aws_secret_key}}
-              TF_VAR_aws_region: ${{env.AWS_REGION}}
-              TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
-              TF_VAR_cloudflare_api_token: ${{ env.CLOUDFLARE_API_TOKEN }}
-              TF_VAR_cloudflare_zone_id: ${{ env.CLOUDFLARE_ZONE_ID }}
-              TF_VAR_cloudflare_email: ${{ env.CLOUDFLARE_EMAIL }}
-
       - name: Terraform apply
         id: apply
         working-directory: ${{env.TERRAFORM_ROOT}}
