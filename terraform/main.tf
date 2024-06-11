@@ -39,20 +39,15 @@ resource "aws_acm_certificate" "acm_certificate" {
     } 
 }
 
-
 locals {
-    validation = [
-        for dvo in aws_acm_certificate.acm_certificate.domain_validation_options : dvo.domain_name => {
+    validation_records = [
+        for dvo in aws_acm_certificate.cert.domain_validation_options : {
             name    = dvo.resource_record_name
             value   = trimsuffix(dvo.resource_record_value, ".")
             type    = dvo.resource_record_type
-            zone_id = var.cloudflare_zone_id
+            zone_id = data.cloudflare_zone.this.id
         }
     ]
-
-    validation_map = { 
-        for item in local.validation : keys(item)[0] => values(item)[0]
-    }
 }
 
 
