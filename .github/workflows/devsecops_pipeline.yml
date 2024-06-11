@@ -92,6 +92,7 @@ jobs:
           TF_VAR_site_domain: upstate-tech.${{env.DOMAIN_TLD}}
           TF_VAR_cloudflare_api_token: ${{ env.CLOUDFLARE_API_TOKEN }}
           TF_VAR_cloudflare_zone_id: ${{ env.CLOUDFLARE_ZONE_ID }}
+          TF_VAR_cloudflare_email: ${{ env.CLOUDFLARE_EMAIL }}
 
 
 
