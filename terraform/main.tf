@@ -49,7 +49,7 @@ locals {
             name    = dvo.resource_record_name
             value   = trimsuffix(dvo.resource_record_value, ".")
             type    = dvo.resource_record_type
-            zone_id = zone_id = data.cloudflare_zone.this.id
+            zone_id = data.cloudflare_zone.this.id
         }
     ]
 }
