@@ -264,7 +264,7 @@ resource "aws_cloudfront_distribution" "site_distribution" {
     comment             = "CloudFront distribution for ${var.site_domain}"
     default_root_object = "index.html"
 
-    aliases: ["${var.site_domain}"]
+    aliases= ["${var.site_domain}"]
 
     default_cache_behavior {
         target_origin_id       = "S3-${aws_s3_bucket.site.bucket}"
