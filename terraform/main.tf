@@ -40,7 +40,7 @@ resource "aws_acm_certificate" "acm_certificate" {
 }
 
 data "cloudflare_zone" "this" {
-    name = local.domain_name
+    name = var.site_domain
 }
 
 locals {
