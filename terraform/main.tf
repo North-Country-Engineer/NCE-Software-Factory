@@ -13,7 +13,7 @@ locals {
         ".ico"  = "image/x-icon",
         ".txt"  = "text/plain"
     }
-    domains = ["www.${var.site_domain}"]
+    domains = ["${var.site_domain}"]
 }
 
 # Configure AWS provider
@@ -264,6 +264,8 @@ resource "aws_cloudfront_distribution" "site_distribution" {
     comment             = "CloudFront distribution for ${var.site_domain}"
     default_root_object = "index.html"
 
+    aliases: [${var.site_domain}]
+
     default_cache_behavior {
         target_origin_id       = "S3-${aws_s3_bucket.site.bucket}"
         viewer_protocol_policy = "redirect-to-https"
@@ -289,9 +291,22 @@ resource "aws_cloudfront_distribution" "site_distribution" {
             restriction_type = "none"
         }
     }
+    custom_error_response {
+        error_caching_min_ttl = 0
+        error_code            = 403
+        response_code         = 200
+        response_page_path    = "/index.html"
+    }
+
+    custom_error_response {
+        error_caching_min_ttl = 0
+        error_code            = 404
+        response_code         = 200
+        response_page_path    = "/index.html"
+    }
 
     viewer_certificate {
-        acm_certificate_arn            = aws_acm_certificate.acm_certificate.arn
+        acm_certificate_arn            = aws_acm_certificate.cert.arn
         ssl_support_method             = "sni-only"
         minimum_protocol_version       = "TLSv1.2_2021"
     }
