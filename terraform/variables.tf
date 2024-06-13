@@ -28,8 +28,10 @@ variable "cloudflare_email" {
 
 variable "user_pool_name" {
     description = "Cognito user pool name"
+    default     = "update-tech-user-pool"
 }
 
 variable "user_pool_client" {
     description = "Cognito user pool client"
+    default     = "update-tech-user-pool-client"
 }
