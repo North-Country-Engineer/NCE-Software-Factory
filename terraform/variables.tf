@@ -28,15 +28,8 @@ variable "cloudflare_email" {
 
 variable "user_pool_name" {
     description = "Cognito user pool name"
-    default     = "UserPool_${site_domain}"
-}
-
-variable "user_pool_domain" {
-    description = "Cognito user pool domain"
-    default     = "UserPoolDomain_${site_domain}"
 }
 
 variable "user_pool_client" {
     description = "Cognito user pool client"
-    default     = "UserPoolClient_${site_domain}"
 }
