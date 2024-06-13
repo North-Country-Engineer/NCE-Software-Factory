@@ -12,7 +12,7 @@ resource "aws_cognito_user_pool" "main" {
     auto_verified_attributes = ["email"]
 
     tags = {
-        Name = var.user_pool_name
+        Name = "update-tech-user-pool"
     }
 }
 
@@ -22,7 +22,7 @@ resource "aws_cognito_user_pool_domain" "main" {
 }
 
 resource "aws_cognito_user_pool_client" "main" {
-    name         = var.user_pool_client
+    name         = "update-tech-user-pool-client"
     user_pool_id = aws_cognito_user_pool.main.id
     generate_secret = false
 
