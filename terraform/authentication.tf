@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "main" {
-    name = "your_user_pool_name"
+    name = "upstate_tech_user_pool"
 
     password_policy {
         minimum_length    = 8
@@ -17,7 +17,7 @@ resource "aws_cognito_user_pool" "main" {
 }
 
 resource "aws_cognito_user_pool_domain" "main" {
-    domain      = "auth"
+    domain      = "upstate_tech_auth"
     user_pool_id = aws_cognito_user_pool.main.id
 }
 
