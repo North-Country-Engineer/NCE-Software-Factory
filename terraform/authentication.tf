@@ -17,7 +17,7 @@ resource "aws_cognito_user_pool" "main" {
 }
 
 resource "aws_cognito_user_pool_domain" "main" {
-    domain      = var.site_domain
+    domain      = "auth"
     user_pool_id = aws_cognito_user_pool.main.id
 }
 
