@@ -17,7 +17,7 @@ resource "aws_cognito_user_pool" "main" {
 }
 
 resource "aws_cognito_user_pool_domain" "main" {
-    domain      = "upstate_tech_auth"
+    domain      = "upstate-tech-auth"
     user_pool_id = aws_cognito_user_pool.main.id
 }
 
