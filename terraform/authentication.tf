@@ -66,17 +66,17 @@ resource "aws_s3_bucket" "lambda_bucket" {
 }
 
 resource "aws_s3_bucket_ownership_controls" "lambda_bucket" {
-  bucket = aws_s3_bucket.lambda_bucket.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
+    bucket = aws_s3_bucket.lambda_bucket.id
+    rule {
+        object_ownership = "BucketOwnerPreferred"
+    }
 }
 
 resource "aws_s3_bucket_acl" "lambda_bucket" {
-  depends_on = [aws_s3_bucket_ownership_controls.lambda_bucket]
+    depends_on = [aws_s3_bucket_ownership_controls.lambda_bucket]
 
-  bucket = aws_s3_bucket.lambda_bucket.id
-  acl    = "private"
+    bucket = aws_s3_bucket.lambda_bucket.id
+    acl    = "private"
 }
 
 data "archive_file" "authentication_lambda" {
@@ -214,7 +214,7 @@ resource "aws_apigatewayv2_integration" "hello_world" {
 resource "aws_apigatewayv2_route" "hello_world" {
     api_id = aws_apigatewayv2_api.lambda.id
 
-    route_key = "GET /hello"
+    route_key = "GET /"
     target    = "integrations/${aws_apigatewayv2_integration.hello_world.id}"
 }
 
