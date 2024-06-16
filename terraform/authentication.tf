@@ -72,7 +72,7 @@ data "archive_file" "authentication_lambda" {
     output_path = "${path.module}/authentication_lambda.zip"
 }
 
-resource "aws_s3_object" "authentication_lambda" {
+resource "aws_s3_object" "authentication_lambda-object" {
     bucket = aws_s3_bucket.lambda_bucket.id
 
     key    = "authentication_lambda.zip"
@@ -142,8 +142,8 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
 
 resource "aws_lambda_function" "authentication_function" {
     function_name       = "auth_function"
-    s3_bucket           = aws_s3_bucket.lambda_bucketa.id
-    s3_key              = aws_s3_object.lambda_bucket.key
+    s3_bucket           = aws_s3_bucket.lambda_bucket.id
+    s3_key              = aws_s3_object.authentication_lambda-object.key
     runtime             = "nodejs20.x"
     handler             = "index.handler"
     source_code_hash    = data.archive_file.authentication_lambda.output_base64sha256
