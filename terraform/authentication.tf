@@ -82,8 +82,8 @@ resource "aws_s3_object" "authentication_lambda" {
 }
 
 
-resource "aws_cloudwatch_log_group" "hello_world" {
-    name = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
+resource "aws_cloudwatch_log_group" "auth_lambda_log_group" {
+    name = "/aws/lambda/${aws_lambda_function.auth_function.function_name}"
 
     retention_in_days = 30
 }
