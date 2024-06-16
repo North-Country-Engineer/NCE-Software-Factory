@@ -81,11 +81,7 @@ resource "aws_s3_bucket_acl" "lambda_bucket" {
 
 resource "null_resource" "build_lambda" {
     provisioner "local-exec" {
-        command = <<EOT
-        cd ${path.module}/lambda
-        npm install
-        zip -r ../lambda_auth.zip *
-        EOT
+        command = "cd ${path.module}/lambda && npm install"
     }
 }
 
