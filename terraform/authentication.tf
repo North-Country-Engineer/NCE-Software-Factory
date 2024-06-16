@@ -65,6 +65,20 @@ resource "aws_s3_bucket" "lambda_bucket" {
     bucket = "authentication-lambda-store-${var.site_domain}"
 }
 
+resource "aws_s3_bucket_ownership_controls" "lambda_bucket" {
+  bucket = aws_s3_bucket.lambda_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "lambda_bucket" {
+  depends_on = [aws_s3_bucket_ownership_controls.lambda_bucket]
+
+  bucket = aws_s3_bucket.lambda_bucket.id
+  acl    = "private"
+}
+
 data "archive_file" "authentication_lambda" {
     type = "zip"
 
@@ -251,3 +265,4 @@ output "base_url" {
 # output "api_url" {
 #     value = aws_api_gateway_deployment.auth_api_deployment.invoke_url
 # }
+
