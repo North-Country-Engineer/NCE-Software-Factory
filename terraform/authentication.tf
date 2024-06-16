@@ -83,7 +83,7 @@ resource "aws_s3_object" "authentication_lambda" {
 
 
 resource "aws_cloudwatch_log_group" "auth_lambda_log_group" {
-    name = "/aws/lambda/${aws_lambda_function.auth_function.function_name}"
+    name = "/aws/lambda/${aws_lambda_function.authentication_function.function_name}"
 
     retention_in_days = 30
 }
@@ -142,8 +142,8 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
 
 resource "aws_lambda_function" "authentication_function" {
     function_name       = "auth_function"
-    s3_bucket           = aws_s3_bucket.authentication_lambda.id
-    s3_key              = aws_s3_object.authentication_lambda.key
+    s3_bucket           = aws_s3_bucket.lambda_bucketa.id
+    s3_key              = aws_s3_object.lambda_bucket.key
     runtime             = "nodejs20.x"
     handler             = "index.handler"
     source_code_hash    = data.archive_file.authentication_lambda.output_base64sha256
