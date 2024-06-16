@@ -1,4 +1,5 @@
-const AWS = require('aws-sdk');
+import AWS from 'aws-sdk';
+
 const Cognito = new AWS.CognitoIdentityServiceProvider();
 
 exports.handler = async (event) => {
@@ -18,11 +19,15 @@ exports.handler = async (event) => {
         };
 
         try {
-            const result = await Cognito.signUp(params).promise();
             return {
                 statusCode: 200,
-                body: JSON.stringify(result),
+                body: JSON.stringify({ message: 'User registered successfully: ', params }),
             };
+            // const result = await Cognito.signUp(params).promise();
+            // return {
+            //     statusCode: 200,
+            //     body: JSON.stringify(result),
+            // };
         } catch (error) {
             return {
                 statusCode: 400,
@@ -42,11 +47,15 @@ exports.handler = async (event) => {
         };
 
         try {
-            const result = await Cognito.initiateAuth(params).promise();
             return {
                 statusCode: 200,
-                body: JSON.stringify(result),
+                body: JSON.stringify({ message: 'User registered successfully: ', params }),
             };
+            // const result = await Cognito.initiateAuth(params).promise();
+            // return {
+            //     statusCode: 200,
+            //     body: JSON.stringify(result),
+            // };
         } catch (error) {
             return {
                 statusCode: 400,

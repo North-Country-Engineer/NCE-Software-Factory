@@ -1,0 +1,14 @@
+{
+    "name": "upstate-tech-auth-lambda",
+    "version": "1.0.0",
+    "description": "Lambda to handle authentication events",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "aws-sdk": "^2.814.0"
+    },
+    "author": "eric@northcountryengineer.com"
+}
