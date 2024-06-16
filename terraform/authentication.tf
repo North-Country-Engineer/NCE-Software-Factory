@@ -62,7 +62,7 @@ resource "aws_cognito_user_pool_client" "main" {
 
 // Lambda function to handle authentication
 resource "aws_s3_bucket" "lambda_bucket" {
-    bucket = "authentication_lambda_store"
+    bucket = "authentication-lambda-store-${var.site_domain}"
 }
 
 data "archive_file" "authentication_lambda" {
