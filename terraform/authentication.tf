@@ -79,6 +79,16 @@ resource "aws_s3_bucket_acl" "lambda_bucket" {
     acl    = "private"
 }
 
+resource "null_resource" "build_lambda" {
+    provisioner "local-exec" {
+        command = <<EOT
+        cd ${path.module}/lambda
+        npm install
+        zip -r ../lambda_auth.zip *
+        EOT
+    }
+}
+
 data "archive_file" "authentication_lambda" {
     type = "zip"
 
