@@ -1,5 +1,0 @@
-{
-    "resource": "/signup",
-    "httpMethod": "POST",
-    "body": "{\"email\": \"test@example.com\", \"password\": \"Test1234\"}"
-}  
