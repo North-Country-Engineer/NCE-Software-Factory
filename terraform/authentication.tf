@@ -203,7 +203,7 @@ resource "aws_apigatewayv2_stage" "lambda" {
     }
 }
 
-resource "aws_apigatewayv2_integration" "hello_world" {
+resource "aws_apigatewayv2_integration" "authentication" {
     api_id = aws_apigatewayv2_api.lambda.id
 
     integration_uri    = aws_lambda_function.authentication_function.invoke_arn
@@ -211,12 +211,28 @@ resource "aws_apigatewayv2_integration" "hello_world" {
     integration_method = "POST"
 }
 
-resource "aws_apigatewayv2_route" "hello_world" {
+resource "aws_apigatewayv2_route" "base_path" {
     api_id = aws_apigatewayv2_api.lambda.id
 
     route_key = "GET /"
-    target    = "integrations/${aws_apigatewayv2_integration.hello_world.id}"
+    target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
 }
+
+resource "aws_apigatewayv2_route" "sign_up" {
+    api_id = aws_apigatewayv2_api.lambda.id
+
+    route_key = "POST /signup"
+    target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
+}
+
+resource "aws_apigatewayv2_route" "sign_in" {
+    api_id = aws_apigatewayv2_api.lambda.id
+
+    route_key = "POST /signin"
+    target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
+}
+
+
 
 resource "aws_cloudwatch_log_group" "api_gw" {
     name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
@@ -239,30 +255,21 @@ resource "aws_lambda_permission" "api_gw" {
 // Outputs 
 
 output "cognito_user_pool_id" {
+    description = "User Pool ID"
     value = aws_cognito_user_pool.main.id
 }
 
 output "cognito_user_pool_client_id" {
+    description = "User Pool Client ID"
     value = aws_cognito_user_pool_client.main.id
 }
 
 output "cognito_user_pool_domain" {
+    description = "Cognito User Pool Domain"
     value = aws_cognito_user_pool_domain.main.domain
 }
 
-output "function_name" {
-    description = "Name of the Lambda function."
-
-    value = aws_lambda_function.authentication_function.function_name
-}
-
 output "base_url" {
-  description = "Base URL for API Gateway stage."
-
-  value = aws_apigatewayv2_stage.lambda.invoke_url
+    description = "Base URL for API Gateway stage."
+    value = aws_apigatewayv2_stage.lambda.invoke_url
 }
-
-# output "api_url" {
-#     value = aws_api_gateway_deployment.auth_api_deployment.invoke_url
-# }
-
