@@ -82,16 +82,73 @@ resource "aws_s3_object" "authentication_lambda" {
 }
 
 
+resource "aws_cloudwatch_log_group" "hello_world" {
+    name = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
 
-/*
+    retention_in_days = 30
+}
 
-resource "aws_lambda_function" "auth_function" {
-    filename         = "lambda_auth.zip"
-    function_name    = "auth_function"
-    role             = aws_iam_role.lambda_exec.arn
-    handler          = "index.handler"
-    runtime          = "nodejs14.x"
-    source_code_hash = filebase64sha256("lambda_auth.zip")
+resource "aws_iam_role" "lambda_exec" {
+    name = "serverless_lambda"
+
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Action = "sts:AssumeRole"
+                    Effect = "Allow"
+                    Sid    = ""
+                    Principal = {
+                        Service = "lambda.amazonaws.com"
+                    }
+            }
+        ]
+    })
+
+    inline_policy {
+        name = "lambda-policy"
+        policy = jsonencode({
+            Version = "2012-10-17",
+            Statement = [
+                {
+                    Action = [
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                    ],
+                    Effect   = "Allow",
+                    Resource = "*"
+                },
+                {
+                    Action = [
+                        "cognito-idp:SignUp",
+                        "cognito-idp:InitiateAuth",
+                        "cognito-idp:AdminInitiateAuth"
+                    ],
+                    Effect   = "Allow",
+                    Resource = "*"
+                }
+            ]
+        })
+    }
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_policy" {
+    role       = aws_iam_role.lambda_exec.name
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+
+
+resource "aws_lambda_function" "authentication_function" {
+    function_name       = "auth_function"
+    s3_bucket           = aws_s3_bucket.authentication_lambda.id
+    s3_key              = aws_s3_object.authentication_lambda.key
+    runtime             = "nodejs20.x"
+    handler             = "index.handler"
+    source_code_hash    = data.archive_file.authentication_lambda.output_base64sha256
+    role                = aws_iam_role.lambda_exec.arn
+
     environment {
         variables = {
             COGNITO_USER_POOL_ID     = aws_cognito_user_pool.main.id
@@ -100,48 +157,8 @@ resource "aws_lambda_function" "auth_function" {
     }
 }
 
-resource "aws_iam_role" "lambda_exec" {
-    name = "lambda_exec_role"
-    assume_role_policy = jsonencode({
-        Version = "2012-10-17",
-        Statement = [
-        {
-            Action    = "sts:AssumeRole",
-            Effect    = "Allow",
-            Principal = {
-            Service = "lambda.amazonaws.com"
-            }
-        }
-        ]
-    })
 
-    inline_policy {
-        name = "lambda-policy"
-        policy = jsonencode({
-        Version = "2012-10-17",
-        Statement = [
-            {
-            Action = [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            Effect   = "Allow",
-            Resource = "*"
-            },
-            {
-            Action = [
-                "cognito-idp:SignUp",
-                "cognito-idp:InitiateAuth",
-                "cognito-idp:AdminInitiateAuth"
-            ],
-            Effect   = "Allow",
-            Resource = "*"
-            }
-        ]
-        })
-    }
-}
+/*
 
 resource "aws_api_gateway_rest_api" "auth_api" {
     name        = "auth_api"
@@ -222,6 +239,12 @@ output "cognito_user_pool_client_id" {
 
 output "cognito_user_pool_domain" {
     value = aws_cognito_user_pool_domain.main.domain
+}
+
+output "function_name" {
+    description = "Name of the Lambda function."
+
+    value = aws_lambda_function.authentication_function.function_name
 }
 
 # output "api_url" {
