@@ -224,6 +224,6 @@ output "cognito_user_pool_domain" {
     value = aws_cognito_user_pool_domain.main.domain
 }
 
-output "api_url" {
-    value = aws_api_gateway_deployment.auth_api_deployment.invoke_url
-}
+# output "api_url" {
+#     value = aws_api_gateway_deployment.auth_api_deployment.invoke_url
+# }
