@@ -160,22 +160,55 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
 
 
 
-resource "aws_lambda_function" "authentication_function" {
-    function_name       = "auth_function"
-    s3_bucket           = aws_s3_bucket.lambda_bucket.id
-    s3_key              = aws_s3_object.authentication_lambda-object.key
-    runtime             = "nodejs20.x"
-    handler             = "index.handler"
-    source_code_hash    = data.archive_file.authentication_lambda.output_base64sha256
-    role                = aws_iam_role.lambda_exec.arn
+# resource "aws_lambda_function" "authentication_function" {
+#     function_name       = "auth_function"
+#     s3_bucket           = aws_s3_bucket.lambda_bucket.id
+#     s3_key              = aws_s3_object.authentication_lambda-object.key
+#     runtime             = "nodejs20.x"
+#     handler             = "index.handler"
+#     source_code_hash    = data.archive_file.authentication_lambda.output_base64sha256
+#     role                = aws_iam_role.lambda_exec.arn
 
-    environment {
-        variables = {
-            COGNITO_USER_POOL_ID     = aws_cognito_user_pool.main.id
-            COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
-        }
+#     environment {
+#         variables = {
+#             COGNITO_USER_POOL_ID     = aws_cognito_user_pool.main.id
+#             COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
+#         }
+#     }
+# }
+
+
+# Use the terraform-aws-lambda module to deploy the Lambda function
+module "lambda" {
+    source = "terraform-aws-modules/lambda/aws"
+
+    function_name = "auth_function"
+    description   = "AWS Lambda function for user authentication using AWS Cognito"
+    handler       = "index.handler"
+    runtime       = "nodejs14.x"
+
+    source_path   = "./lambda"
+    s3_bucket     = aws_s3_bucket.lambda_bucket.id
+    s3_key        = aws_s3_object.authentication_lambda-object.key
+
+    environment_variables = {
+        COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+        COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.main.id
     }
+
+    layers = []
+
+    tags = {
+        Terraform = "true"
+        Environment = "dev"
+    }
+
+    iam_role_arn = aws_iam_role.lambda_exec.arn
 }
+
+
+
+
 
 // APIG
 
@@ -211,8 +244,7 @@ resource "aws_apigatewayv2_stage" "lambda" {
 
 resource "aws_apigatewayv2_integration" "authentication" {
     api_id = aws_apigatewayv2_api.lambda.id
-
-    integration_uri    = aws_lambda_function.authentication_function.invoke_arn
+    integration_uri    = module.lambda.this_lambda_function_arn
     integration_type   = "AWS_PROXY"
     integration_method = "POST"
 }
@@ -249,7 +281,7 @@ resource "aws_cloudwatch_log_group" "api_gw" {
 resource "aws_lambda_permission" "api_gw" {
     statement_id  = "AllowExecutionFromAPIGateway"
     action        = "lambda:InvokeFunction"
-    function_name = aws_lambda_function.authentication_function.function_name
+    function_name = module.lambda.this_lambda_function_name
     principal     = "apigateway.amazonaws.com"
 
     source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
@@ -279,3 +311,9 @@ output "base_url" {
     description = "Base URL for API Gateway stage."
     value = aws_apigatewayv2_stage.lambda.invoke_url
 }
+
+
+
+
+
+
