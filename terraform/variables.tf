@@ -35,3 +35,13 @@ variable "user_pool_client" {
     description = "Cognito user pool client"
     default     = "update-tech-user-pool-client"
 }
+
+variable "cors_configuration" {
+    description = "The cross-origin resource sharing (CORS) configuration. Applicable for HTTP APIs"
+
+    default = {
+        allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
+        allow_methods = ["*"]
+        allow_origins = ["*"]
+    }
+}
