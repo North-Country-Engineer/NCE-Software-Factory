@@ -201,7 +201,6 @@ module "lambda" {
         Environment = "dev"
     }
 
-    iam_role_arn = aws_iam_role.lambda_exec.arn
     role_name = aws_iam_role.lambda_exec.name
 }
 
