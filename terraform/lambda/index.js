@@ -19,15 +19,15 @@ export const handler = async (event) => {
         };
 
         try {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ message: 'User registered successfully: ', params }),
-            };
-            // const result = await Cognito.signUp(params).promise();
             // return {
             //     statusCode: 200,
-            //     body: JSON.stringify(result),
+            //     body: JSON.stringify({ message: 'User registered successfully: ', params }),
             // };
+            const result = await Cognito.signUp(params).promise();
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result),
+            };
         } catch (error) {
             return {
                 statusCode: 400,
