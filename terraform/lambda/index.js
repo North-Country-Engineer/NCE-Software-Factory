@@ -5,7 +5,7 @@ const Cognito = new AWS.CognitoIdentityServiceProvider();
 export const handler = async (event) => {
     const body = JSON.parse(event.body);
 
-    if (event.resource === '/signups' && event.httpMethod === 'POST') {
+    if (event.resource === '/signup' && event.httpMethod === 'POST') {
         const params = {
             ClientId: process.env.COGNITO_CLIENT_ID,
             Username: body.email,
@@ -44,15 +44,15 @@ export const handler = async (event) => {
         };
 
         try {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ message: 'User registered successfully: ', params }),
-            };
-            // const result = await Cognito.initiateAuth(params).promise();
             // return {
             //     statusCode: 200,
-            //     body: JSON.stringify(result),
+            //     body: JSON.stringify({ message: 'User registered successfully: ', params }),
             // };
+            const result = await Cognito.initiateAuth(params).promise();
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result),
+            };
         } catch (error) {
             return {
                 statusCode: 400,
