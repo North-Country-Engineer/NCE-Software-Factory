@@ -206,98 +206,70 @@ module "lambda" {
 
 // APIG
 
-module "api_gateway" {
-    source = "terraform-aws-modules/apigateway/aws"
+resource "aws_apigatewayv2_api" "lambda" {
+    name                = "serverless_lambda_gw"
+    protocol_type       = "HTTP"
 
-    name        = "upstate_tech_serverless_lambda_gw"
-    protocol_type = "HTTP"
-
-
-    cors_configuration = {
-        allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
-        allow_methods = ["*"]
+    cors_configuration {
         allow_origins = ["*"]
-    }
-
-    routes = {
-        "ANY /" = {
-            integration_uri        = module.lambda.lambda_function_arn
-            payload_format_version = "2.0"
-        }
-        "POST /signup" = {
-            integration_uri        = module.lambda.lambda_function_arn
-            payload_format_version = "2.0"
-        }
-        "POST /signin" = {
-            integration_uri        = module.lambda.lambda_function_arn
-            payload_format_version = "2.0"
-        }
+        allow_headers = ["*"]
+        allow_methods = ["*"]
+        max_age       = 3600
     }
 }
 
-# resource "aws_apigatewayv2_api" "lambda" {
-#     name                = "serverless_lambda_gw"
-#     protocol_type       = "HTTP"
+resource "aws_apigatewayv2_stage" "lambda" {
+    api_id = aws_apigatewayv2_api.lambda.id
 
-#     cors_configuration  = {
-#         allow_headers     = var.cors_configuration.value.allow_headers
-#         allow_methods     = var.cors_configuration.value.allow_methods
-#         allow_origins     = var.cors_configuration.value.allow_origins
-#     }
-# }
+    name        = "serverless_lambda_stage"
+    auto_deploy = true
 
-# resource "aws_apigatewayv2_stage" "lambda" {
-#     api_id = aws_apigatewayv2_api.lambda.id
+    access_log_settings {
+        destination_arn = aws_cloudwatch_log_group.api_gw.arn
 
-#     name        = "serverless_lambda_stage"
-#     auto_deploy = true
+        format = jsonencode({
+            requestId               = "$context.requestId"
+            sourceIp                = "$context.identity.sourceIp"
+            requestTime             = "$context.requestTime"
+            protocol                = "$context.protocol"
+            httpMethod              = "$context.httpMethod"
+            resourcePath            = "$context.resourcePath"
+            routeKey                = "$context.routeKey"
+            status                  = "$context.status"
+            responseLength          = "$context.responseLength"
+            integrationErrorMessage = "$context.integrationErrorMessage"
+        }
+        )
+    }
+}
 
-#     access_log_settings {
-#         destination_arn = aws_cloudwatch_log_group.api_gw.arn
+resource "aws_apigatewayv2_integration" "authentication" {
+    api_id = aws_apigatewayv2_api.lambda.id
+    integration_uri    = module.lambda.lambda_function_arn
+    integration_type   = "AWS_PROXY"
+    integration_method = "POST"
+}
 
-#         format = jsonencode({
-#             requestId               = "$context.requestId"
-#             sourceIp                = "$context.identity.sourceIp"
-#             requestTime             = "$context.requestTime"
-#             protocol                = "$context.protocol"
-#             httpMethod              = "$context.httpMethod"
-#             resourcePath            = "$context.resourcePath"
-#             routeKey                = "$context.routeKey"
-#             status                  = "$context.status"
-#             responseLength          = "$context.responseLength"
-#             integrationErrorMessage = "$context.integrationErrorMessage"
-#         }
-#         )
-#     }
-# }
+resource "aws_apigatewayv2_route" "base_path" {
+    api_id = aws_apigatewayv2_api.lambda.id
 
-# resource "aws_apigatewayv2_integration" "authentication" {
-#     api_id = aws_apigatewayv2_api.lambda.id
-#     integration_uri    = module.lambda.lambda_function_arn
-#     integration_type   = "AWS_PROXY"
-#     integration_method = "POST"
-# }
+    route_key = "GET /"
+    target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
+}
 
-# resource "aws_apigatewayv2_route" "base_path" {
-#     api_id = aws_apigatewayv2_api.lambda.id
+resource "aws_apigatewayv2_route" "sign_up" {
+    api_id = aws_apigatewayv2_api.lambda.id
 
-#     route_key = "GET /"
-#     target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
-# }
+    route_key = "POST /signup"
+    target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
+}
 
-# resource "aws_apigatewayv2_route" "sign_up" {
-#     api_id = aws_apigatewayv2_api.lambda.id
+resource "aws_apigatewayv2_route" "sign_in" {
+    api_id = aws_apigatewayv2_api.lambda.id
 
-#     route_key = "POST /signup"
-#     target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
-# }
-
-# resource "aws_apigatewayv2_route" "sign_in" {
-#     api_id = aws_apigatewayv2_api.lambda.id
-
-#     route_key = "POST /signin"
-#     target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
-# }
+    route_key = "POST /signin"
+    target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
+}
 
 resource "aws_cloudwatch_log_group" "api_gw" {
     name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
@@ -313,9 +285,6 @@ resource "aws_lambda_permission" "api_gw" {
 
     source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
 }
-
-
-
 
 // Outputs 
 
