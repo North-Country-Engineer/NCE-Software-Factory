@@ -207,16 +207,13 @@ module "lambda" {
 // APIG
 
 resource "aws_apigatewayv2_api" "lambda" {
-    name          = "serverless_lambda_gw"
-    protocol_type = "HTTP"
+    name                = "serverless_lambda_gw"
+    protocol_type       = "HTTP"
 
-    dynamic "cors_configuration" {
-
-        content {
-            allow_headers     = var.cors_configuration.value.allow_headers
-            allow_methods     = var.cors_configuration.value.allow_methods
-            allow_origins     = var.cors_configuration.value.allow_origins
-        }
+    cors_configuration  = {
+        allow_headers     = var.cors_configuration.value.allow_headers
+        allow_methods     = var.cors_configuration.value.allow_methods
+        allow_origins     = var.cors_configuration.value.allow_origins
     }
 }
 
