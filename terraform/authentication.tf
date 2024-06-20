@@ -209,6 +209,19 @@ module "lambda" {
 resource "aws_apigatewayv2_api" "lambda" {
     name          = "serverless_lambda_gw"
     protocol_type = "HTTP"
+
+    dynamic "cors_configuration" {
+        for_each = local.is_http && length(var.cors_configuration) > 0 ? [var.cors_configuration] : []
+
+        content {
+        allow_credentials = cors_configuration.value.allow_credentials
+        allow_headers     = cors_configuration.value.allow_headers
+        allow_methods     = cors_configuration.value.allow_methods
+        allow_origins     = cors_configuration.value.allow_origins
+        expose_headers    = cors_configuration.value.expose_headers
+        max_age           = cors_configuration.value.max_age
+        }
+    }
 }
 
 resource "aws_apigatewayv2_stage" "lambda" {

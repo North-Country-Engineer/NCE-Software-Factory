@@ -2,4 +2,4 @@
     "resource": "/signin",
     "httpMethod": "POST",
     "body": "{\"email\": \"test@example.com\", \"password\": \"Test1234\"}"
-}  
+} 

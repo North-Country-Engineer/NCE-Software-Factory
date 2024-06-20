@@ -44,10 +44,6 @@ export const handler = async (event) => {
         };
 
         try {
-            // return {
-            //     statusCode: 200,
-            //     body: JSON.stringify({ message: 'User registered successfully: ', params }),
-            // };
             const result = await Cognito.initiateAuth(params).promise();
             return {
                 statusCode: 200,
