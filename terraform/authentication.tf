@@ -102,11 +102,11 @@ resource "aws_s3_object" "authentication_lambda-object" {
 }
 
 
-resource "aws_cloudwatch_log_group" "auth_lambda_log_group" {
-    name = "/aws/lambda/${aws_lambda_function.authentication_function.function_name}"
+# resource "aws_cloudwatch_log_group" "auth_lambda_log_group" {
+#     name = "/aws/lambda/${aws_lambda_function.authentication_function.function_name}"
 
-    retention_in_days = 30
-}
+#     retention_in_days = 30
+# }
 
 resource "aws_iam_role" "lambda_exec" {
     name = "serverless_lambda"
@@ -242,7 +242,7 @@ resource "aws_apigatewayv2_stage" "lambda" {
 
 resource "aws_apigatewayv2_integration" "authentication" {
     api_id = aws_apigatewayv2_api.lambda.id
-    integration_uri    = module.lambda.this_lambda_function_arn
+    integration_uri    = module.lambda.lambda_function_arn
     integration_type   = "AWS_PROXY"
     integration_method = "POST"
 }
@@ -279,7 +279,7 @@ resource "aws_cloudwatch_log_group" "api_gw" {
 resource "aws_lambda_permission" "api_gw" {
     statement_id  = "AllowExecutionFromAPIGateway"
     action        = "lambda:InvokeFunction"
-    function_name = module.lambda.this_lambda_function_name
+    function_name = module.lambda.lambda_function_name
     principal     = "apigateway.amazonaws.com"
 
     source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
