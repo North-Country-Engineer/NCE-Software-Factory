@@ -204,10 +204,6 @@ module "lambda" {
     role_name = "${aws_iam_role.lambda_exec.name}_lambda_module"
 }
 
-
-
-
-
 // APIG
 
 resource "aws_apigatewayv2_api" "lambda" {

@@ -5,7 +5,7 @@ const Cognito = new AWS.CognitoIdentityServiceProvider();
 export const handler = async (event) => {
     const body = JSON.parse(event.body);
 
-    if (event.resource === '/signup' && event.httpMethod === 'POST') {
+    if (event.resource === '/signups' && event.httpMethod === 'POST') {
         const params = {
             ClientId: process.env.COGNITO_CLIENT_ID,
             Username: body.email,
