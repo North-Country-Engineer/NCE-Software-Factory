@@ -188,8 +188,6 @@ module "lambda" {
     runtime       = "nodejs14.x"
 
     source_path   = "./lambda"
-    s3_bucket     = aws_s3_bucket.lambda_bucket.id
-    s3_key        = aws_s3_object.authentication_lambda-object.key
 
     environment_variables = {
         COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
@@ -204,6 +202,7 @@ module "lambda" {
     }
 
     iam_role_arn = aws_iam_role.lambda_exec.arn
+    role_name = aws_iam_role.lambda_exec.name
 }
 
 
