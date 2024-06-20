@@ -185,7 +185,7 @@ module "lambda" {
     function_name = "auth_function"
     description   = "AWS Lambda function for user authentication using AWS Cognito"
     handler       = "index.handler"
-    runtime       = "nodejs14.x"
+    runtime       = "nodejs20.x"
 
     source_path   = "./lambda"
 
