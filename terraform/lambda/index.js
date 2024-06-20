@@ -2,7 +2,7 @@ import AWS from 'aws-sdk';
 
 const Cognito = new AWS.CognitoIdentityServiceProvider();
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
     const body = JSON.parse(event.body);
 
     if (event.resource === '/signup' && event.httpMethod === 'POST') {
