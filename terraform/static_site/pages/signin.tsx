@@ -7,20 +7,25 @@ export default function SignIn() {
     const handleSubmit = async (event:any) => {
         event.preventDefault();
 
-        const res = await fetch('/api/signin', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
+        const res = await fetch('https://x9f3g8bvi6.execute-api.us-east-1.amazonaws.com/serverless_lambda_stage/signin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
         });
 
+        const data = await res.json();
+
         if (res.ok) {
-        // Handle successful sign-in
-        alert('Sign-In Successful!');
+            localStorage.setItem('accessToken', data.AuthenticationResult.AccessToken);
+            localStorage.setItem('idToken', data.AuthenticationResult.IdToken);
+            localStorage.setItem('refreshToken', data.AuthenticationResult.RefreshToken);
+            alert('Sign-In Successful!');
+            console.log(data);
         } else {
-        // Handle error
-        alert('Sign-In Failed!');
+            // Handle error
+            alert('Sign-In Failed! ' + data.error);
         }
     };
 
