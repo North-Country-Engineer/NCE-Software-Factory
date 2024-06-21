@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'export',
-    trailingSlash: true, // Ensure trailing slashes for all paths
+    trailingSlash: true,
     exportPathMap: async function (
         defaultPathMap,
         { dev, dir, outDir, distDir, buildId }
