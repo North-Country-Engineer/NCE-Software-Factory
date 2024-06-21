@@ -255,7 +255,7 @@ resource "aws_cloudfront_distribution" "site_distribution" {
         origin_id   = "S3-${aws_s3_bucket.site.bucket}"
 
         s3_origin_config {
-            origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
+            origin_access_identity = aws_cloudfaws_ront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
         }
     }
 

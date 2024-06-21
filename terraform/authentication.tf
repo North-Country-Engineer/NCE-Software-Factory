@@ -257,17 +257,11 @@ resource "aws_apigatewayv2_route" "base_path" {
     target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
 }
 
-resource "aws_apigatewayv2_route" "sign_up" {
-    api_id = aws_apigatewayv2_api.lambda.id
+resource "aws_apigatewayv2_route" "routes" {
+    for_each = toset(var.put_api_routes)
 
-    route_key = "POST /signup"
-    target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
-}
-
-resource "aws_apigatewayv2_route" "sign_in" {
-    api_id = aws_apigatewayv2_api.lambda.id
-
-    route_key = "POST /signin"
+    api_id   = aws_apigatewayv2_api.lambda.id
+    route_key = "POST /${each.value}"
     target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
 }
 

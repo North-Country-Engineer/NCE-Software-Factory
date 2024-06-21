@@ -80,3 +80,23 @@ variable "allow_credentials" {
     description = "Allow credentials"
     default     = false
 }
+
+variable "AWS_COGNITO_REGION" {
+    description = "AWS region"
+    default     = "us-east-1"
+}       
+
+variable "AWS_COGNITO_POOL_ID" {
+    description = "Cognito user pool ID"
+}        
+
+variable "AWS_COGNITO_APP_CLIENT_ID" {
+    description = "Cognito user pool client ID"
+}
+
+variable "put_api_routes" {
+    description = "List of API routes for authentication"
+    type        = list(string)
+    default     = ["signup", "signin", "validate"]
+}
+

@@ -57,6 +57,23 @@ export const handler = async (event) => {
         }
     }
 
+    if (event.resource === '/verify' && event.httpMethod === 'POST') {
+        const token = body.token;
+
+        try {
+            const payload = await verifier.verify(token);
+            return {
+                statusCode: 200,
+                body: JSON.stringify(payload),
+            };
+        } catch (error) {
+            return {
+                statusCode: 401,
+                body: JSON.stringify({ error: 'Token is invalid' }),
+            };
+        }
+    }
+
     return {
         statusCode: 404,
         body: JSON.stringify({ error: 'Not Found' }),

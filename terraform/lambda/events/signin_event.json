@@ -1,5 +1,9 @@
 {
     "resource": "/signin",
+    "path": "/signin",
     "httpMethod": "POST",
-    "body": "{\"email\": \"test@example.com\", \"password\": \"Test1234\"}"
-} 
+    "headers": {
+        "Content-Type": "application/json"
+    },
+    "body": "{\"email\": \"test@example.com\", \"password\": \"testPassword123\"}"
+}
