@@ -108,7 +108,7 @@ jobs:
           TF_VAR_AWS_COGNITO_APP_CLIENT_ID:   ${{ env.AWS_COGNITO_APP_CLIENT_ID }}
 
   test:
-    name: Run applicable tests
+    name: Test
     needs: build
     runs-on: ubuntu-latest
     environment: ${{github.ref == 'refs/heads/production' && 'production' || 'sandbox'}}
@@ -132,15 +132,25 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Run Signin Lambda Test Event
+        id: lambda-test-signup
+        run: |
+          aws lambda invoke \
+            --function-name auth_function \
+            --payload file://terraform/lambda/events/signup_event.json \
+            output_signin.json
+        working-directory: ${{ env.TERRAFORM_ROOT }}
+
+      - name: Run Signin Lambda Test Event
         id: lambda-test-signin
         run: |
           aws lambda invoke \
             --function-name auth_function \
-            --payload file://terraform/events/signin_event.json \
+            --payload file://terraform/lambda/events/signin_event.json \
             output_signin.json
         working-directory: ${{ env.TERRAFORM_ROOT }}
 
   promote-to-production:
+    name: Deploy
     runs-on: ubuntu-latest
     needs: test
     if: success() && github.ref == 'refs/heads/sandbox'
