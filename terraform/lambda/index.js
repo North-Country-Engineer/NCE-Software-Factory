@@ -74,6 +74,25 @@ export const handler = async (event) => {
         }
     }
 
+    if (event.resource === '/getUserAttributes' && event.httpMethod === 'POST') {
+        const params = {
+            AccessToken: body.accessToken,
+        };
+
+        try {
+            const result = await Cognito.getUser(params).promise();
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result.UserAttributes),
+            };
+        } catch (error) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: error.message }),
+            };
+        }
+    }
+
     return {
         statusCode: 404,
         body: JSON.stringify({ error: 'Not Found' }),

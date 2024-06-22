@@ -97,6 +97,11 @@ variable "AWS_COGNITO_APP_CLIENT_ID" {
 variable "put_api_routes" {
     description = "List of API routes for authentication"
     type        = list(string)
-    default     = ["signup", "signin", "validate"]
+    default     = [
+        "signup", 
+        "signin", 
+        "validate", 
+        "getUserAttributes"
+    ]
 }
 
