@@ -138,7 +138,7 @@ jobs:
             --function-name auth_function \
             --payload file://terraform/lambda/events/signup_event.json \
             output_signin.json
-        working-directory: ${{ env.TERRAFORM_ROOT }}
+        working-directory: ./
 
       - name: Run Signin Lambda Test Event
         id: lambda-test-signin
@@ -147,7 +147,7 @@ jobs:
             --function-name auth_function \
             --payload file://terraform/lambda/events/signin_event.json \
             output_signin.json
-        working-directory: ${{ env.TERRAFORM_ROOT }}
+        working-directory: ./
 
   promote-to-production:
     name: Deploy
