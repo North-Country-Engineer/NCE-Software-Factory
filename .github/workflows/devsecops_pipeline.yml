@@ -136,7 +136,7 @@ jobs:
         run: |
           aws lambda invoke \
             --function-name auth_function \
-            --payload file://terraform/lambda/events/signup_event.json \
+            --payload fileb://terraform/lambda/events/signup_event.json \
             output_signin.json
         working-directory: .
 
