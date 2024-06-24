@@ -1,0 +1,5 @@
+{
+    "resource": "/getUserAttributes",
+    "httpMethod": "POST",
+    "body": "{\"email\": \"user@example.com\"}"
+}

@@ -143,7 +143,12 @@ resource "aws_iam_role" "lambda_exec" {
                     Action = [
                         "cognito-idp:SignUp",
                         "cognito-idp:InitiateAuth",
-                        "cognito-idp:AdminInitiateAuth"
+                        "cognito-idp:AdminInitiateAuth",
+                        "cognito-idp:AdminCreateUser",
+                        "cognito-idp:AdminInitiateAuth",
+                        "cognito-idp:AdminGetUser",
+                        "cognito-idp:AdminRespondToAuthChallenge",
+                        "cognito-idp:ListUsers"
                     ],
                     Effect   = "Allow",
                     Resource = "*"
@@ -158,27 +163,7 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-
-
-# resource "aws_lambda_function" "authentication_function" {
-#     function_name       = "auth_function"
-#     s3_bucket           = aws_s3_bucket.lambda_bucket.id
-#     s3_key              = aws_s3_object.authentication_lambda-object.key
-#     runtime             = "nodejs20.x"
-#     handler             = "index.handler"
-#     source_code_hash    = data.archive_file.authentication_lambda.output_base64sha256
-#     role                = aws_iam_role.lambda_exec.arn
-
-#     environment {
-#         variables = {
-#             COGNITO_USER_POOL_ID     = aws_cognito_user_pool.main.id
-#             COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
-#         }
-#     }
-# }
-
-
-# Use the terraform-aws-lambda module to deploy the Lambda function
+# Module definitions for two lambdas. One sitting behind APIG providing auth functionality, one providing auth functionality for APIG
 module "lambda" {
     source = "terraform-aws-modules/lambda/aws"
 
@@ -203,6 +188,31 @@ module "lambda" {
 
     role_name = "${aws_iam_role.lambda_exec.name}_lambda_module"
 }
+
+module "lambda_authorizer" {
+    source = "terraform-aws-modules/lambda/aws"
+
+    function_name = "api_gateway_authorizer"
+    description   = "AWS Lambda function for API Gateway authorization"
+    handler       = "index.handler"
+    runtime       = "nodejs20.x"
+
+    source_path   = "./authorizer"
+
+    environment_variables = {
+        COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+    }
+
+    layers = []
+
+    tags = {
+        Terraform = "true"
+        Environment = "dev"
+    }
+
+    role_name = "${aws_iam_role.lambda_exec.name}_lambda_module"
+}
+
 
 // APIG
 
@@ -265,10 +275,26 @@ resource "aws_apigatewayv2_route" "routes" {
     target    = "integrations/${aws_apigatewayv2_integration.authentication.id}"
 }
 
-resource "aws_cloudwatch_log_group" "api_gw" {
-    name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
+resource "aws_lambda_permission" "api_gw" {
+    statement_id  = "AllowExecutionFromAPIGateway"
+    action        = "lambda:InvokeFunction"
+    function_name = module.lambda.lambda_function_name
+    principal     = "apigateway.amazonaws.com"
 
-    retention_in_days = 30
+    source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
+}
+
+resource "aws_apigatewayv2_authorizer" "lambda_authorizer" {
+    name            = "LambdaAuthorizer"
+    api_id          = aws_apigatewayv2_api.lambda.id
+    authorizer_uri  = module.lambda_authorizer.this_lambda_function_invoke_arn
+    identity_source = "method.request.header.Authorization"
+    authorizer_type = "REQUEST"
+
+    jwt_configuration {
+        audience = [aws_cognito_user_pool_client.main.id]
+        issuer   = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.main.id}"
+    }
 }
 
 resource "aws_lambda_permission" "api_gw" {
@@ -279,6 +305,15 @@ resource "aws_lambda_permission" "api_gw" {
 
     source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
 }
+
+//Logging
+
+resource "aws_cloudwatch_log_group" "api_gw" {
+    name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
+
+    retention_in_days = 30
+}
+
 
 // Outputs 
 

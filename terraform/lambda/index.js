@@ -76,11 +76,12 @@ export const handler = async (event) => {
 
     if (event.resource === '/getUserAttributes' && event.httpMethod === 'POST') {
         const params = {
-            AccessToken: body.accessToken,
+            UserPoolId: process.env.COGNITO_USER_POOL_ID,
+            Username: body.email,
         };
 
         try {
-            const result = await Cognito.getUser(params).promise();
+            const result = await Cognito.adminGetUser(params).promise();
             return {
                 statusCode: 200,
                 body: JSON.stringify(result.UserAttributes),
