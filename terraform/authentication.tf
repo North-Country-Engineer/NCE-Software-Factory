@@ -285,10 +285,11 @@ resource "aws_lambda_permission" "api_gw" {
 }
 
 resource "aws_apigatewayv2_authorizer" "lambda_authorizer" {
-    name            = "LambdaAuthorizer"
-    api_id          = aws_apigatewayv2_api.lambda.id
-    authorizer_uri   = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${module.lambda.lambda_function_arn}/invocations"
-    authorizer_type = "REQUEST"
+    name                            = "LambdaAuthorizer"
+    api_id                          = aws_apigatewayv2_api.lambda.id
+    authorizer_uri                  = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${module.lambda.lambda_function_arn}/invocations"
+    authorizer_type                 = "REQUEST"
+    AuthorizerPayloadFormatVersion  = "2.0"
 
     jwt_configuration {
         audience = [aws_cognito_user_pool_client.main.id]
