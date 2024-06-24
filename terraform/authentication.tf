@@ -288,8 +288,6 @@ resource "aws_apigatewayv2_authorizer" "lambda_authorizer" {
     name            = "LambdaAuthorizer"
     api_id          = aws_apigatewayv2_api.lambda.id
     authorizer_uri  = module.lambda_authorizer.lambda_function_arn
-    identity_source = "method.request.header.Authorization"
-    authorizer_type = "REQUEST"
 
     jwt_configuration {
         audience = [aws_cognito_user_pool_client.main.id]
