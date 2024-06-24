@@ -297,15 +297,6 @@ resource "aws_apigatewayv2_authorizer" "lambda_authorizer" {
     }
 }
 
-resource "aws_lambda_permission" "api_gw" {
-    statement_id  = "AllowExecutionFromAPIGateway"
-    action        = "lambda:InvokeFunction"
-    function_name = module.lambda.lambda_function_name
-    principal     = "apigateway.amazonaws.com"
-
-    source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
-}
-
 //Logging
 
 resource "aws_cloudwatch_log_group" "api_gw" {
