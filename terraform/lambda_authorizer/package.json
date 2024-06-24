@@ -1,0 +1,16 @@
+{
+  "name": "upstate_tech_lambda_authorizer",
+  "version": "9.0.2",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "jsonwebtoken": "^9.0.2",
+    "jwk-to-pem": "^2.0.5"
+  }
+}
