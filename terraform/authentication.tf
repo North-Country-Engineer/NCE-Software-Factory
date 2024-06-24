@@ -197,7 +197,7 @@ module "lambda_authorizer" {
     handler       = "index.handler"
     runtime       = "nodejs20.x"
 
-    source_path   = "./authorizer"
+    source_path   = "./lambda_authorizer"
 
     environment_variables = {
         COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
