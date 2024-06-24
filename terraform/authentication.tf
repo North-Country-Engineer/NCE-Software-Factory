@@ -287,7 +287,7 @@ resource "aws_lambda_permission" "api_gw" {
 resource "aws_apigatewayv2_authorizer" "lambda_authorizer" {
     name            = "LambdaAuthorizer"
     api_id          = aws_apigatewayv2_api.lambda.id
-    authorizer_uri   = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${module.lambda.lambda_function_arn}/invocations"
+    authorizer_uri   = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${module.lambda.lambda_function_arn}/invocations"
     authorizer_type = "REQUEST"
 
     jwt_configuration {
