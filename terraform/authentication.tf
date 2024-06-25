@@ -151,12 +151,31 @@ resource "aws_iam_role" "lambda_exec" {
                         "cognito-idp:ListUsers"
                     ],
                     Effect   = "Allow",
-                    Resource = "*"
+                    Resource = "arn:aws:cognito-idp:us-east-1:${{var.AWS_ACCOUNT_ID}}:userpool/${aws_cognito_user_pool.main.id}"
                 }
             ]
         })
     }
 }
+
+resource "aws_iam_role_policy" "lambda_cognito_policy" {
+    name   = "lambda_cognito_policy"
+    role   = aws_iam_role.lambda_exec.name
+
+    policy = jsonencode({
+        Version = "2012-10-17",
+        Statement = [
+        {
+            Effect = "Allow",
+            Action = [
+                "cognito-idp:AdminGetUser"
+            ],
+            Resource = "arn:aws:cognito-idp:us-east-1:654654362378:userpool/us-east-1_CewTbG5oH"
+        }
+        ]
+    })
+}
+
 
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
     role       = aws_iam_role.lambda_exec.name
