@@ -139,6 +139,7 @@ jobs:
             --function-name auth_function \
             --payload fileb://terraform/lambda/events/signup_event.json \
             output_signup.json
+            cat output_signup.json
         working-directory: .
 
       - name: Run Signin Lambda Test Event and Capture Token
@@ -148,6 +149,7 @@ jobs:
             --function-name auth_function \
             --payload fileb://terraform/lambda/events/signin_event.json \
             output_signin.json
+            cat output_signin.json
           TOKEN=$(jq -r '.AuthenticationResult.IdToken' output_signin.json)
           echo "TOKEN=$TOKEN" >> $GITHUB_ENV
         working-directory: .
@@ -160,6 +162,7 @@ jobs:
             --function-name auth_function \
             --payload fileb://terraform/lambda/events/getUserAttributes_event.json \
             output_getUserAttributes.json
+            cat output_getUserAttributes.json
         working-directory: .
 
   promote-to-production:
