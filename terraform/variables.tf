@@ -1,5 +1,6 @@
 variable "aws_region" {
     description = "The AWS region to deploy resources"
+    default     = "us-east-1"
 }
 
 variable "aws_access_key" {
@@ -103,5 +104,9 @@ variable "put_api_routes" {
         "validate", 
         "getUserAttributes"
     ]
+}
+
+variable "AWS_ACCOUNT_ID" {
+    description = "AWS account ID"
 }
 

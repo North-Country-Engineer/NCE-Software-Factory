@@ -94,6 +94,7 @@ jobs:
         working-directory: ${{env.TERRAFORM_ROOT}}
         run: terraform apply -auto-approve
         env:
+          TF_VAR_AWS_ACCOUNT_ID:              ${{env.AWS_ACCOUNT_ID}}
           TF_VAR_aws_access_key:              ${{secrets.TF_VAR_aws_access_key}}
           TF_VAR_aws_secret_key:              ${{secrets.TF_VAR_aws_secret_key}}
           TF_VAR_aws_region:                  ${{env.AWS_REGION}}
