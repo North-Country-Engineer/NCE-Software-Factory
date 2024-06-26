@@ -65,34 +65,10 @@ variable "allow_methods" {
     ]
 }
 
-variable "allow_origin" {
+variable "allow_origins" {
     description = "Allow origin"
     type        = string
-    default     = "*"
-}
-
-variable "allow_max_age" {
-    description = "Allow response caching time"
-    type        = string
-    default     = "7200"
-}
-
-variable "allow_credentials" {
-    description = "Allow credentials"
-    default     = false
-}
-
-variable "AWS_COGNITO_REGION" {
-    description = "AWS region"
-    default     = "us-east-1"
-}       
-
-variable "AWS_COGNITO_POOL_ID" {
-    description = "Cognito user pool ID"
-}        
-
-variable "AWS_COGNITO_APP_CLIENT_ID" {
-    description = "Cognito user pool client ID"
+    default     = ["*"]
 }
 
 variable "put_api_routes" {

@@ -7,20 +7,19 @@ export default function SignUp() {
     const handleSubmit = async (event:any) => {
         event.preventDefault();
 
-        const res = await fetch('/api/signup', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
+        const res = await fetch(`${process.env.API_GATEWAY_ENDPOINT}/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
         });
 
         if (res.ok) {
-        // Handle successful sign-up
-        alert('Sign-Up Successful!');
+            alert('Sign-Up Successful!');
         } else {
-        // Handle error
-        alert('Sign-Up Failed!');
+            const data = await res.json();
+            alert(`Sign-Up Failed! ${data.error}`);
         }
     };
 

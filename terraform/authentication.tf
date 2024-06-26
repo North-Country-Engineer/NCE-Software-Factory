@@ -13,7 +13,7 @@ resource "aws_cognito_user_pool" "main" {
     auto_verified_attributes = ["email"]
 
     tags = {
-        Name = "update-tech-user-pool"
+        Name = var.user_pool_name
     }
 }
 
@@ -23,7 +23,7 @@ resource "aws_cognito_user_pool_domain" "main" {
 }
 
 resource "aws_cognito_user_pool_client" "main" {
-    name         = "update-tech-user-pool-client"
+    name         = var.user_pool_client
     user_pool_id = aws_cognito_user_pool.main.id
     generate_secret = false
 
@@ -240,9 +240,9 @@ resource "aws_apigatewayv2_api" "lambda" {
     protocol_type       = "HTTP"
 
     cors_configuration {
-        allow_origins = ["*"]
-        allow_headers = ["*"]
-        allow_methods = ["*"]
+        allow_origins = var.allow_origins
+        allow_headers = var.allow_headers
+        allow_methods = var.allow_methods
         max_age       = 3600
     }
 }

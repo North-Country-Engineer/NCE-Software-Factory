@@ -51,27 +51,6 @@ jobs:
       
       - name: Set Environment Variable
         run: echo "TF_ENV=${{env.TF_ENV}}" >> $GITHUB_ENV
-      - name: Install Dependencies
-        run: npm install
-        working-directory: ./terraform/static_site
-
-      - name: Build Next.js Site
-        run: |
-          NEXT_PUBLIC_AWS_COGNITO_REGION=${{ env.AWS_COGNITO_REGION }} \
-          NEXT_PUBLIC_AWS_COGNITO_POOL_ID=${{ env.AWS_COGNITO_POOL_ID }} \
-          NEXT_PUBLIC_AWS_COGNITO_APP_CLIENT_ID=${{ env.AWS_COGNITO_APP_CLIENT_ID }} \
-          npm run build
-        working-directory: ./terraform/static_site
-        
-      - name: Cache next build
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -100,11 +79,38 @@ jobs:
           TF_VAR_cloudflare_api_token:        ${{ env.CLOUDFLARE_API_TOKEN }}
           TF_VAR_cloudflare_zone_id:          ${{ env.CLOUDFLARE_ZONE_ID }}
           TF_VAR_cloudflare_email:            ${{ env.CLOUDFLARE_EMAIL }}
-          TF_VAR_user_pool_name:              ${{ env. USER_POOL_NAME }}
-          TF_VAR_user_pool_client:            ${{ env. USER_POOL_CLIENT}}
           TF_VAR_AWS_COGNITO_REGION:          ${{ env.AWS_COGNITO_REGION }}
           TF_VAR_AWS_COGNITO_POOL_ID:         ${{ env.AWS_COGNITO_POOL_ID }}
           TF_VAR_AWS_COGNITO_APP_CLIENT_ID:   ${{ env.AWS_COGNITO_APP_CLIENT_ID }}
+
+      - name: Extract APIG endpoint for use in NEXT build
+        id: extract-api-endpoint
+        run: |
+          API_GATEWAY_ENDPOINT=$(jq -r '.api_gateway_endpoint.value' tf_output.json)
+          echo "API_GATEWAY_ENDPOINT=$API_GATEWAY_ENDPOINT" >> $GITHUB_ENV
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./terraform/static_site
+
+      - name: Build Next.js Site
+        run: |
+          NEXT_PUBLIC_AWS_COGNITO_REGION=${{ env.AWS_COGNITO_REGION }} \
+          NEXT_PUBLIC_AWS_COGNITO_POOL_ID=${{ env.AWS_COGNITO_POOL_ID }} \
+          NEXT_PUBLIC_AWS_COGNITO_APP_CLIENT_ID=${{ env.AWS_COGNITO_APP_CLIENT_ID }} \
+          NEXT_PUBLIC_APIG_ENDPOINT=${{ env.API_GATEWAY_ENDPOINT }}
+          npm run build
+        working-directory: ./terraform/static_site
+        
+      - name: Cache next build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
   test:
     name: Test
