@@ -158,7 +158,7 @@ jobs:
         id: lambda-test-verify-user
         run: |
           aws cognito-idp admin-confirm-sign-up \
-            --user-pool-id ${{env.AWS_COGNITO_POOL_ID}}
+            --user-pool-id ${{env.AWS_COGNITO_POOL_ID}} \
             --username test@example.com
 
       - name: Run GetUserAttributes Lambda Test Event
