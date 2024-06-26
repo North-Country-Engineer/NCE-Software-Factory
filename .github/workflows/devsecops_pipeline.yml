@@ -51,7 +51,6 @@ jobs:
       
       - name: Set Environment Variable
         run: echo "TF_ENV=${{env.TF_ENV}}" >> $GITHUB_ENV
-      x 
       - name: Install Dependencies
         run: npm install
         working-directory: ./terraform/static_site
