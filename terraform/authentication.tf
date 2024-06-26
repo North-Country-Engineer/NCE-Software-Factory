@@ -205,7 +205,7 @@ module "lambda" {
         Environment = "dev"
     }
     create_role = false
-    lambda_role = aws_iam_role.lambda_exec.name
+    lambda_role = aws_iam_role.lambda_exec.arn
 }
 
 module "lambda_authorizer" {
@@ -229,7 +229,7 @@ module "lambda_authorizer" {
         Environment = "dev"
     }
     create_role = false
-    lambda_role = aws_iam_role.lambda_exec.name
+    lambda_role = aws_iam_role.lambda_exec.arn
 }
 
 
