@@ -151,7 +151,7 @@ resource "aws_iam_role" "lambda_exec" {
                         "cognito-idp:ListUsers"
                     ],
                     Effect   = "Allow",
-                    Resource = "arn:aws:cognito-idp:us-east-1:${{var.AWS_ACCOUNT_ID}}:userpool/${aws_cognito_user_pool.main.id}"
+                    Resource = "arn:aws:cognito-idp:us-east-1:${var.AWS_ACCOUNT_ID}:userpool/${aws_cognito_user_pool.main.id}"
                 }
             ]
         })
