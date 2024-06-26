@@ -51,8 +51,7 @@ jobs:
       
       - name: Set Environment Variable
         run: echo "TF_ENV=${{env.TF_ENV}}" >> $GITHUB_ENV
-      
-      
+      x 
       - name: Install Dependencies
         run: npm install
         working-directory: ./terraform/static_site
@@ -147,8 +146,8 @@ jobs:
         run: |
           aws cognito-idp admin-confirm-sign-up \
             --user-pool-id ${{env.AWS_COGNITO_POOL_ID}} \
-            --username test@example.com | tee verify_user_output.txt
-            cat verify_user_output.txt
+            --username test@example.com \
+            --debug
 
       - name: Run Signin Lambda Test Event and Capture Token
         id: lambda-test-signin
@@ -177,8 +176,8 @@ jobs:
         run: |
           aws cognito-idp admin-delete-user \
             --user-pool-id ${{env.AWS_COGNITO_POOL_ID}} \
-            --username test@example.com | tee delete_user_output.txt
-          cat delete_user_output.txt
+            --username test@example.com \
+            --debug
 
   promote-to-production:
     name: Deploy
