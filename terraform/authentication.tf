@@ -205,7 +205,7 @@ module "lambda" {
         Environment = "dev"
     }
 
-    role_name = "${aws_iam_role.lambda_exec.name}_lambda_module"
+    ole_name = aws_iam_role.lambda_exec.name
 }
 
 module "lambda_authorizer" {
@@ -229,7 +229,7 @@ module "lambda_authorizer" {
         Environment = "dev"
     }
 
-    role_name = "${aws_iam_role.lambda_exec.name}_lambda_authorizer_module"
+    role_name = aws_iam_role.lambda_exec.name
 }
 
 
