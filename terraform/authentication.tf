@@ -109,7 +109,7 @@ resource "aws_s3_object" "authentication_lambda-object" {
 # }
 
 resource "aws_iam_role" "lambda_exec" {
-    name = "upstate_tech_lambda_execution_role"
+    name = "upstate_tech_lambda_execution_iam_role"
 
     assume_role_policy = jsonencode({
         Version = "2012-10-17"
