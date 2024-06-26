@@ -108,63 +108,79 @@ resource "aws_s3_object" "authentication_lambda-object" {
 #     retention_in_days = 30
 # }
 
-# resource "aws_iam_role" "lambda_exec" {
-#     name = "upstate_tech_lambda_execution_iam_role"
+resource "aws_iam_role" "lambda_exec" {
+    name = "upstate_tech_lambda_execution_iam_role"
 
-#     assume_role_policy = jsonencode({
-#         Version = "2012-10-17"
-#         Statement = [
-#             {
-#                 Action = "sts:AssumeRole"
-#                     Effect = "Allow"
-#                     Sid    = ""
-#                     Principal = {
-#                         Service = "lambda.amazonaws.com"
-#                     }
-#             }
-#         ]
-#     })
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Action = "sts:AssumeRole"
+                    Effect = "Allow"
+                    Sid    = ""
+                    Principal = {
+                        Service = "lambda.amazonaws.com"
+                    }
+            }
+        ]
+    })
 
-#     inline_policy {
-#         name = "lambda-policy"
-#         policy = jsonencode({
-#             Version = "2012-10-17",
-#             Statement = [
-#                 {
-#                     Action = [
-#                         "logs:CreateLogGroup",
-#                         "logs:CreateLogStream",
-#                         "logs:PutLogEvents"
-#                     ],
-#                     Effect   = "Allow",
-#                     Resource = "*"
-#                 },
-#                 {
-#                     Action = [
-#                         "cognito-idp:SignUp",
-#                         "cognito-idp:InitiateAuth",
-#                         "cognito-idp:AdminInitiateAuth",
-#                         "cognito-idp:AdminCreateUser",
-#                         "cognito-idp:AdminInitiateAuth",
-#                         "cognito-idp:AdminGetUser",
-#                         "cognito-idp:AdminRespondToAuthChallenge",
-#                         "cognito-idp:ListUsers"
-#                     ],
-#                     Effect   = "Allow",
-#                     Resource = "arn:aws:cognito-idp:us-east-1:${var.AWS_ACCOUNT_ID}:userpool/${aws_cognito_user_pool.main.id}"
-#                 }
-#             ]
-#         })
-#     }
-# }
+    inline_policy {
+        name = "lambda-policy"
+        policy = jsonencode({
+            Version = "2012-10-17",
+            Statement = [
+                {
+                    Action = [
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                    ],
+                    Effect   = "Allow",
+                    Resource = "*"
+                },
+                {
+                    Action = [
+                        "cognito-idp:SignUp",
+                        "cognito-idp:InitiateAuth",
+                        "cognito-idp:AdminInitiateAuth",
+                        "cognito-idp:AdminCreateUser",
+                        "cognito-idp:AdminInitiateAuth",
+                        "cognito-idp:AdminGetUser",
+                        "cognito-idp:AdminRespondToAuthChallenge",
+                        "cognito-idp:ListUsers"
+                    ],
+                    Effect   = "Allow",
+                    Resource = "arn:aws:cognito-idp:us-east-1:${var.AWS_ACCOUNT_ID}:userpool/${aws_cognito_user_pool.main.id}"
+                }
+            ]
+        })
+    }
+}
+
+resource "aws_iam_role_policy" "lambda_cognito_policy" {
+    name   = "lambda_cognito_policy"
+    role   = aws_iam_role.lambda_exec.name
+
+    policy = jsonencode({
+        Version = "2012-10-17",
+        Statement = [
+        {
+            Effect = "Allow",
+            Action = [
+                "cognito-idp:AdminGetUser"
+            ],
+            Resource = "arn:aws:cognito-idp:us-east-1:654654362378:userpool/us-east-1_CewTbG5oH"
+        }
+        ]
+    })
+}
 
 
-/*
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
     role       = aws_iam_role.lambda_exec.name
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
-*/
 
 # Module definitions for two lambdas. One sitting behind APIG providing auth functionality, one providing auth functionality for APIG
 module "lambda" {
@@ -188,8 +204,8 @@ module "lambda" {
         Terraform = "true"
         Environment = "dev"
     }
-
-    role_name = "lambda_role"
+    create_role = false
+    lambda_role = aws_iam_role.lambda_exec.name
 }
 
 module "lambda_authorizer" {
@@ -212,35 +228,9 @@ module "lambda_authorizer" {
         Terraform = "true"
         Environment = "dev"
     }
-
-    role_name = "lambda_authorizer_role"
+    create_role = false
+    lambda_role = aws_iam_role.lambda_exec.name
 }
-
-//define cognito permissions for the lambda authorizer
-resource "aws_iam_role_policy" "lambda_cognito_policy" {
-    name   = "lambda_cognito_policy"
-    role   = module.lambda_authorizer.lambda_role
-
-    policy = jsonencode({
-        Version = "2012-10-17",
-        Statement = [{
-            Effect = "Allow",
-            Action = [
-                "cognito-idp:SignUp",
-                "cognito-idp:InitiateAuth",
-                "cognito-idp:AdminInitiateAuth",
-                "cognito-idp:AdminCreateUser",
-                "cognito-idp:AdminInitiateAuth",
-                "cognito-idp:AdminGetUser",
-                "cognito-idp:AdminRespondToAuthChallenge",
-                "cognito-idp:ListUsers"
-            ],
-            Effect   = "Allow",
-            Resource = "arn:aws:cognito-idp:us-east-1:${var.AWS_ACCOUNT_ID}:userpool/${aws_cognito_user_pool.main.id}"
-        }]
-    })
-}
-
 
 
 // APIG
