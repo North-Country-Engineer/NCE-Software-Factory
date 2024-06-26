@@ -67,7 +67,7 @@ variable "allow_methods" {
 
 variable "allow_origins" {
     description = "Allow origin"
-    type        = string
+    type        = list(string)
     default     = ["*"]
 }
 
