@@ -219,7 +219,7 @@ module "lambda_authorizer" {
 //define cognito permissions for the lambda authorizer
 resource "aws_iam_role_policy" "lambda_cognito_policy" {
     name   = "lambda_cognito_policy"
-    role   = aws_iam_role.lambda_exec.name
+    role   = module.lambda_authorizer.lambda_role
 
     policy = jsonencode({
         Version = "2012-10-17",
