@@ -83,11 +83,11 @@ jobs:
           TF_VAR_AWS_COGNITO_REGION:          ${{ env.AWS_COGNITO_REGION }}
           TF_VAR_AWS_COGNITO_POOL_ID:         ${{ env.AWS_COGNITO_POOL_ID }}
 
-      - name: Extract APIG endpoint for use in NEXT build
-        id: extract-api-endpoint
-        run: |
-          API_GATEWAY_ENDPOINT=$(jq -r '.api_gateway_endpoint.value' tf_output.json)
-          echo "API_GATEWAY_ENDPOINT=$API_GATEWAY_ENDPOINT" >> $GITHUB_ENV
+      # - name: Extract APIG endpoint for use in NEXT build
+      #   id: extract-api-endpoint
+      #   run: |
+      #     API_GATEWAY_ENDPOINT=$(jq -r '.api_gateway_endpoint.value' tf_output.json)
+      #     echo "API_GATEWAY_ENDPOINT=$API_GATEWAY_ENDPOINT" >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: npm install
