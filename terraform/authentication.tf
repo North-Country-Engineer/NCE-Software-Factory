@@ -205,7 +205,7 @@ module "lambda" {
         Environment = "dev"
     }
 
-    ole_name = aws_iam_role.lambda_exec.name
+    role_name = aws_iam_role.lambda_exec.name
 }
 
 module "lambda_authorizer" {
@@ -267,8 +267,7 @@ resource "aws_apigatewayv2_stage" "lambda" {
             status                  = "$context.status"
             responseLength          = "$context.responseLength"
             integrationErrorMessage = "$context.integrationErrorMessage"
-        }
-        )
+        })
     }
 }
 
