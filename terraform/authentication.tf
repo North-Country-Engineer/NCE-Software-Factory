@@ -223,8 +223,7 @@ resource "aws_iam_role_policy" "lambda_cognito_policy" {
 
     policy = jsonencode({
         Version = "2012-10-17",
-        Statement = [
-        {
+        Statement = [{
             Effect = "Allow",
             Action = [
                 "cognito-idp:SignUp",
@@ -237,8 +236,8 @@ resource "aws_iam_role_policy" "lambda_cognito_policy" {
                 "cognito-idp:ListUsers"
             ],
             Effect   = "Allow",
-                Resource = "arn:aws:cognito-idp:us-east-1:${var.AWS_ACCOUNT_ID}:userpool/${aws_cognito_user_pool.main.id}"
-            }
+            Resource = "arn:aws:cognito-idp:us-east-1:${var.AWS_ACCOUNT_ID}:userpool/${aws_cognito_user_pool.main.id}"
+        }]
     })
 }
 
