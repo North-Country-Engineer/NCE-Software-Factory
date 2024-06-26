@@ -142,13 +142,13 @@ jobs:
             cat output_signup.json
         working-directory: .
       
-      
       - name: Force verification of user
         id: lambda-test-verify-user
         run: |
           aws cognito-idp admin-confirm-sign-up \
             --user-pool-id ${{env.AWS_COGNITO_POOL_ID}} \
-            --username test@example.com
+            --username test@example.com | tee verify_user_output.txt
+            cat verify_user_output.txt
 
       - name: Run Signin Lambda Test Event and Capture Token
         id: lambda-test-signin
@@ -171,13 +171,14 @@ jobs:
             output_getUserAttributes.json
             cat output_getUserAttributes.json
         working-directory: .
-      
+
       - name: Delete test user
         id: lambda-test-delete-test-user
         run: |
           aws cognito-idp admin-delete-user \
             --user-pool-id ${{env.AWS_COGNITO_POOL_ID}} \
-            --username test@example.com
+            --username test@example.com | tee delete_user_output.txt
+          cat delete_user_output.txt
 
   promote-to-production:
     name: Deploy
