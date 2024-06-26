@@ -69,7 +69,7 @@ jobs:
         id: apply
         working-directory: ${{env.TERRAFORM_ROOT}}
         run: |
-          terraform apply -auto-approve -var="environment=${{ env.TF_ENV }}"
+          terraform apply -auto-approve
           terraform output -json > tf_output.json
         env:
           TF_VAR_AWS_ACCOUNT_ID:              ${{env.AWS_ACCOUNT_ID}}
