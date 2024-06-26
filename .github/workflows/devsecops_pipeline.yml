@@ -172,11 +172,12 @@ jobs:
             cat output_getUserAttributes.json
         working-directory: .
       
-      # - name: Delete test user
-      #   id: lambda-test-delete-test-user
-      #   run: |
-      #     aws iam delete-user \
-      #       --user-name test@example.com
+      - name: Delete test user
+        id: lambda-test-delete-test-user
+        run: |
+          aws cognito-idp admin-delete-user \
+            --user-pool-id ${{env.AWS_COGNITO_POOL_ID}} \
+            --username test@example.com
 
   promote-to-production:
     name: Deploy
