@@ -45,7 +45,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{secrets.TF_VAR_aws_account_id}}:role/GitHubAction-AssumeRoleWithAction
+          role-to-assume: arn:aws:iam::${{secrets.TF_VAR_aws_account_id}}:role/github-actions-role
           aws-region: ${{ env.AWS_REGION }}
       
       - name: Set Environment Variable

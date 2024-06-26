@@ -55,8 +55,6 @@ locals {
 }
 
 
-
-
 # IAM Role for GitHub Actions
 resource "aws_iam_role" "github_actions_role" {
     name = "github-actions-role"
@@ -75,7 +73,7 @@ resource "aws_iam_role" "github_actions_role" {
 }
 
 # IAM Policy to allow GitHub Actions to access the S3 bucket
-resource "aws_iam_policy" "github_actions_policy" {
+resource "aws_iam_policy" "github_actions_s3_policy" {
     name        = "github-actions-policy"
     description = "Policy for GitHub Actions to access S3 bucket"
     policy      = jsonencode({
@@ -98,16 +96,66 @@ resource "aws_iam_policy" "github_actions_policy" {
     })
 }
 
-# Attach the IAM Policy to the IAM Role
-resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
-    role       = aws_iam_role.github_actions_role.name
-    policy_arn = aws_iam_policy.github_actions_policy.arn
+# IAM Policy to allow GitHub Actions to access the S3 bucket
+resource "aws_iam_policy" "github_actions_lambda_invoke_policy" {
+    name        = "github-actions-policy"
+    description = "Policy for GitHub Actions to access S3 bucket"
+    policy      = jsonencode({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": "lambda:InvokeFunction",
+                "Resource": ${module.lambda.lambda_function_arn}
+            }
+        ]
+    })
 }
 
-# Output the ARN of the GitHub Actions IAM Role
-output "github_actions_role_arn" {
-    value = aws_iam_role.github_actions_role.arn
+#IAM Policy to allow Github Actions to access IAM resources
+resource "aws_iam_policy" "github_actions_IAM_policy" {
+    name        = "github-actions-IAM-policy"
+    descrition  = "Policy for Github Actions to access IAM resources"
+    policy      = jsonencode({
+        "Version"   : "2012-10-17",
+        "Statement" : [
+            {
+                "Effect"    : "Allow",
+                "Action"    : [
+                    "iam:*",
+                    "organizations:DescribeAccount",
+                    "organizations:DescribeOrganization",
+                    "organizations:DescribeOrganizationalUnit",
+                    "organizations:DescribePolicy",
+                    "organizations:ListChildren",
+                    "organizations:ListParents",
+                    "organizations:ListPoliciesForTarget",
+                    "organizations:ListRoots",
+                    "organizations:ListPolicies",
+                    "organizations:ListTargetsForPolicy"
+                ],
+                "Resource"  : "*"
+            }
+        ]
+    })
 }
+
+# Attach the IAM Policy to the IAM Role
+resource "aws_iam_role_policy_attachment" "github_actions_S3_policy_attachment" {
+    role       = aws_iam_role.github_actions_role.name
+    policy_arn = aws_iam_policy.github_actions_s3_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_lambda_invoke_policy_attachment" {
+    role       = aws_iam_role.github_actions_role.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonCognitoPowerUser" #todo: not this
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_iam_access" {
+    role       = aws_iam_role.github_actions_role.name
+    policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess" #todo: not this
+}
+
 
 # Define the S3 bucket for the site. S3 is holding built static files for the next project and sits behind a cloudfront distribution
 resource "aws_s3_bucket" "site" {
