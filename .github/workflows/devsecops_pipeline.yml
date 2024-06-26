@@ -154,16 +154,28 @@ jobs:
           echo "TOKEN=$TOKEN" >> $GITHUB_ENV
         working-directory: .
 
+      - name: Force verification of user
+        id: lambda-test-verify-user
+        run: |
+          aws cognito-idp admin-confirm-sign-up \
+            --user-pool-id ${{env.AWS_COGNITO_POOL_ID}}
+            --username test@example.com
+
       - name: Run GetUserAttributes Lambda Test Event
         id: lambda-test-getUserAttributes
         run: |
-          echo '{"resource":"/getUserAttributes","httpMethod":"POST","body":"{\"email\": \"user@example.com\"}"}' > terraform/lambda/events/getUserAttributes_event.json
           aws lambda invoke \
             --function-name auth_function \
             --payload fileb://terraform/lambda/events/getUserAttributes_event.json \
             output_getUserAttributes.json
             cat output_getUserAttributes.json
         working-directory: .
+      
+      - name: Delete test user
+        id: lambda-test-delete-test-user
+        run: |
+          aws iam delete-user \
+            --user-name test@example.com
 
   promote-to-production:
     name: Deploy
