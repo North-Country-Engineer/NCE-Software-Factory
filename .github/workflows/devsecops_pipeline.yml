@@ -84,12 +84,6 @@ jobs:
           TF_VAR_AWS_COGNITO_REGION:          ${{ env.AWS_COGNITO_REGION }}
           TF_VAR_AWS_COGNITO_POOL_ID:         ${{ env.AWS_COGNITO_POOL_ID }}
 
-      # - name: Extract APIG endpoint for use in NEXT build
-      #   id: extract-api-endpoint
-      #   run: |
-      #     API_GATEWAY_ENDPOINT=$(jq -r '.api_gateway_endpoint.value' tf_output.json)
-      #     echo "API_GATEWAY_ENDPOINT=$API_GATEWAY_ENDPOINT" >> $GITHUB_ENV
-
       - name: Install Dependencies
         run: npm install
         working-directory: ./terraform/static_site
@@ -113,18 +107,10 @@ jobs:
       - name: Deploy to S3
         run: |
           aws s3 sync ./terraform/static_site/out s3://${{ env.BUCKET_NAME }}${{ env.DOMAIN_TLD }} --delete
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
 
       - name: Invalidate CloudFront Distribution
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ steps.apply.outputs.cloudfront_distribution_id }} --paths "/*"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
 
   test:
     name: Test
