@@ -64,7 +64,7 @@ resource "aws_iam_policy" "github_actions_lambda_invoke_policy" {
             {
                 "Effect": "Allow",
                 "Action": "lambda:InvokeFunction",
-                "Resource": ${module.lambda.lambda_function_arn}
+                "Resource": module.lambda.lambda_function_arn
             }
         ]
     })
