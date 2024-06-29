@@ -90,7 +90,7 @@ jobs:
 
       - name: Call terraform output
         run: |
-          api_gateway_endpoint=$(terraform output test)
+          api_gateway_endpoint=$(terraform output test -state=${{env.TERRAFORM_ROOT}}.tfstate)
           echo $api_gateway_endpoint
 
       - name: Build Next.js Site
