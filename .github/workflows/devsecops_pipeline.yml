@@ -70,8 +70,9 @@ jobs:
         id: apply
         working-directory: ${{env.TERRAFORM_ROOT}}
         run: |
-          terraform apply -auto-approve
-          echo "api_gateway_endpoint=$(terraform output -raw api_gateway_endpoint)" >> $GITHUB_OUTPUT
+          set -x
+          terraform apply -auto-approve 
+          echo "the api_gateway_endpoint=$(terraform output -raw api_gateway_endpoint)" >> $GITHUB_OUTPUT
           terraform output -json > tf_output.json
         env:
           TF_VAR_AWS_ACCOUNT_ID:              ${{env.AWS_ACCOUNT_ID}}
@@ -88,11 +89,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
         working-directory: ./terraform/static_site
-
-      - name: Call terraform output
-        run: |
-          api_gateway_endpoint=$(terraform output -state=${{env.TERRAFORM_ROOT}}/terraform.tfstate test )
-          echo $api_gateway_endpoint
 
       - name: Build Next.js Site
         env:
