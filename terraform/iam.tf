@@ -1,24 +1,31 @@
-
 # IAM Role for GitHub Actions
 resource "aws_iam_role" "github_actions_role" {
     name = "github-actions-role"
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17",
+        Statement = [
+        {
+            Effect = "Allow",
+            Principal = {
+                AWS = "arn:aws:iam::${var.AWS_ACCOUNT_ID}:user/Admin_User"
+            },
+            Action = "sts:AssumeRole"
+        }
+        ]
+    })
 }
 
 resource "aws_iam_policy" "github_actions_sts_policy" {
     name        = "github-actions-sts-policy"
     description = "Policy for GitHub Actions to assume a role"
-    policy      = jsonencode({
+    policy = jsonencode({
         Version = "2012-10-17",
         Statement = [
-            {
-                Effect = "Allow",
-                Principal = {
-                    Service = "ec2.amazonaws.com"
-                },
-                Action = [
-                    "sts:AssumeRole",
-                    "sts:TagSession"
-            }
+        {
+            Effect   = "Allow",
+            Action   = ["sts:AssumeRole", "sts:TagSession"],
+            Resource = aws_iam_role.github_actions_role.arn
+        }
         ]
     })
 }
