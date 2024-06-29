@@ -9,7 +9,7 @@ resource "aws_iam_role" "github_actions_role" {
             Principal = {
                 AWS = "arn:aws:iam::${var.AWS_ACCOUNT_ID}:user/Admin_User"
             },
-            Action = "sts:AssumeRole"
+            Action = ["sts:AssumeRole", "sts:TagSession"]
         }
         ]
     })
