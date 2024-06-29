@@ -15,7 +15,7 @@ output "domain_name" {
 
 output "api_gateway_endpoint" {
     description = "API gateway endpoint"
-    value       = aws_apigatewayv2_api.api.api_endpoint
+    value       = aws_apigatewayv2_api.lambda.api_endpoint
 }
 
 output "github_actions_role_arn" {
