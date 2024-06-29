@@ -159,15 +159,15 @@ resource "aws_s3_bucket_versioning" "site_bucket_versioning" {
 }
 
 # Upload static files to the S3 bucket with appropriate content types
-resource "aws_s3_object" "static_files" {
-    for_each = fileset("${path.module}/static_site/out", "**/*")
+# resource "aws_s3_object" "static_files" {
+#     for_each = fileset("${path.module}/static_site/out", "**/*")
 
-    bucket = aws_s3_bucket.site.bucket
-    key    = each.value
-    source = "${path.module}/static_site/out/${each.value}"
-    etag   = filemd5("${path.module}/static_site/out/${each.value}")
-    content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
-}
+#     bucket = aws_s3_bucket.site.bucket
+#     key    = each.value
+#     source = "${path.module}/static_site/out/${each.value}"
+#     etag   = filemd5("${path.module}/static_site/out/${each.value}")
+#     content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
+# }
 
 # Validate cert
 resource "cloudflare_record" "validation" {
