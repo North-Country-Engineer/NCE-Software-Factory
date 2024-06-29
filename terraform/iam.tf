@@ -32,7 +32,7 @@ resource "aws_iam_policy" "github_actions_sts_policy" {
 
 # IAM Policy to allow GitHub Actions to access the S3 bucket
 resource "aws_iam_policy" "github_actions_s3_policy" {
-    name        = "github-actions-policy"
+    name        = "github-actions-s3-policy"
     description = "Policy for GitHub Actions to access S3 bucket"
     policy      = jsonencode({
         Version = "2012-10-17",
@@ -59,7 +59,7 @@ resource "aws_iam_policy" "github_actions_s3_policy" {
 
 # IAM Policy to allow GitHub Actions to access the S3 bucket
 resource "aws_iam_policy" "github_actions_lambda_invoke_policy" {
-    name        = "github-actions-policy"
+    name        = "github-actions-lambda-invoke-policy"
     description = "Policy for GitHub Actions to access S3 bucket"
     policy      = jsonencode({
         "Version": "2012-10-17",
