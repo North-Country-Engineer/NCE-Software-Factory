@@ -72,8 +72,6 @@ jobs:
         run: |
           terraform apply -auto-approve
           echo "api_gateway_endpoint=$(terraform output -raw api_gateway_endpoint)" >> $GITHUB_OUTPUT
-          echo "bucket_name=$(terraform output -raw bucket_name)" >> $GITHUB_OUTPUT
-          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
           terraform output -json > tf_output.json
         env:
           TF_VAR_AWS_ACCOUNT_ID:              ${{env.AWS_ACCOUNT_ID}}
