@@ -88,9 +88,14 @@ jobs:
         run: npm install
         working-directory: ./terraform/static_site
 
+      - name: Call terraform output
+        run: |
+          api_gateway_endpoint=$(terraform output test)
+          echo $api_gateway_endpoint
+
       - name: Build Next.js Site
         run: |
-          NEXT_PUBLIC_APIG_ENDPOINT=${{ steps.apply.outputs.api_gateway_endpoint }} \
+          NEXT_PUBLIC_APIG_ENDPOINT= $api_gateway_endpoint \
           npm run build
         working-directory: ./terraform/static_site
         
@@ -107,10 +112,6 @@ jobs:
       - name: Deploy to S3
         run: |
           aws s3 sync ./terraform/static_site/out s3://${{ env.BUCKET_NAME }}${{ env.DOMAIN_TLD }} --delete
-
-      - name: Invalidate CloudFront Distribution
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ steps.apply.outputs.cloudfront_distribution_id }} --paths "/*"
 
   test:
     name: Test
