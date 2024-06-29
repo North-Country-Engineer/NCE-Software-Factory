@@ -7,6 +7,8 @@ export default function SignUp() {
     const handleSubmit = async (event:any) => {
         event.preventDefault();
 
+        console.log(`${process.env.API_GATEWAY_ENDPOINT}`)
+
         const res = await fetch(`${process.env.API_GATEWAY_ENDPOINT}/signup`, {
             method: 'POST',
             headers: {
