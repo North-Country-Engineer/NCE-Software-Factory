@@ -71,6 +71,9 @@ jobs:
         working-directory: ${{env.TERRAFORM_ROOT}}
         run: |
           terraform apply -auto-approve
+          echo "api_gateway_endpoint=$(terraform output -raw api_gateway_endpoint)" >> $GITHUB_OUTPUT
+          echo "bucket_name=$(terraform output -raw bucket_name)" >> $GITHUB_OUTPUT
+          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
           terraform output -json > tf_output.json
         env:
           TF_VAR_AWS_ACCOUNT_ID:              ${{env.AWS_ACCOUNT_ID}}
@@ -95,7 +98,7 @@ jobs:
 
       - name: Build Next.js Site
         run: |
-          NEXT_PUBLIC_APIG_ENDPOINT= $api_gateway_endpoint \
+          NEXT_PUBLIC_APIG_ENDPOINT= ${{ steps.apply.outputs.api_gateway_endpoint }} \
           npm run build
         working-directory: ./terraform/static_site
         
