@@ -97,8 +97,9 @@ jobs:
           echo $api_gateway_endpoint
 
       - name: Build Next.js Site
+        env:
+            NEXT_PUBLIC_APIG_ENDPOINT: ${{ steps.apply.outputs.api_gateway_endpoint }}
         run: |
-          NEXT_PUBLIC_APIG_ENDPOINT= ${{ steps.apply.outputs.api_gateway_endpoint }}
           npm run build
         working-directory: ./terraform/static_site
         
