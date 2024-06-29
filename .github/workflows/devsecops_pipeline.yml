@@ -111,7 +111,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync ./terraform/static_site/out s3://${{ steps.apply.outputs.bucket_name }} --delete
+          aws s3 sync ./terraform/static_site/out s3://${{ steps.apply.outputs.website_bucket_name }} --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
