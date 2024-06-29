@@ -43,11 +43,14 @@ resource "aws_iam_policy" "github_actions_s3_policy" {
                     "s3:GetObject",
                     "s3:PutObject",
                     "s3:DeleteObject",
-                    "s3:ListBucket"
+                    "s3:ListBucket",
+                    "sts:AssumeRole",
+                    "sts:TagSession"
                 ],
                 Resource = [
                     "arn:aws:s3:::${aws_s3_bucket.site.id}",
                     "arn:aws:s3:::${aws_s3_bucket.site.id}/*"
+                    "arn:aws:iam:::user/Admin_User"
                 ]
             }
         ]
