@@ -49,7 +49,7 @@ resource "aws_iam_policy" "github_actions_s3_policy" {
                 ],
                 Resource = [
                     "arn:aws:s3:::${aws_s3_bucket.site.id}",
-                    "arn:aws:s3:::${aws_s3_bucket.site.id}/*"
+                    "arn:aws:s3:::${aws_s3_bucket.site.id}/*",
                     "arn:aws:iam:::user/Admin_User"
                 ]
             }
