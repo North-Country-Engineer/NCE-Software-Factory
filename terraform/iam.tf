@@ -70,7 +70,7 @@ resource "aws_iam_policy" "github_actions_lambda_invoke_policy" {
     })
 }
 
-resource "aws_iam_role_policy_attachment "github_actions_sts_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "github_actions_sts_policy_attachment" {
     role       = aws_iam_role.github_actions_role.name
     policy_arn = aws_iam_policy.github_actions_sts_policy.arn
 }
